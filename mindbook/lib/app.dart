@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'home.dart';
+import 'package:mindbook/home.dart';
 
 class MindbookApp extends StatelessWidget {
   @override

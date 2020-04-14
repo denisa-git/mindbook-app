@@ -7,6 +7,7 @@ final FirebaseAuth _auth = FirebaseAuth.instance;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // TODO: Display splash screen while waitng for userLoggedIn()
   runApp(new MaterialApp(
       debugShowCheckedModeBanner: false, home: await userLoggedIn()));
 }

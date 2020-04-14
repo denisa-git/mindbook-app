@@ -23,6 +23,7 @@ class HomeScreen extends StatelessWidget {
               IconButton(
                 icon: Icon(Icons.exit_to_app),
                 onPressed: () {
+                  // TODO: Find better way to dispose of current user session and dump ancestors
                   signOutGoogle().whenComplete(() {
                           Navigator.of(context).push(
                             MaterialPageRoute(
@@ -48,5 +49,5 @@ class HomeScreen extends StatelessWidget {
 
 Future<Null> signOutGoogle() async {
   await googleSignIn.signOut();
-  await FirebaseAuth.instance.signOut();
+  await _auth.signOut();
 }

@@ -74,8 +74,29 @@ class HomeScreen extends StatelessWidget {
 }
 
 Widget showEntries() {
-  if (false) {
-    // TODO: build list view
+  if (true) {
+    // return ListView.separated(
+    //   padding: const EdgeInsets.all(8),
+    //   itemCount: 2,
+    //   itemBuilder: (BuildContext context, int index) {
+    //     return 
+    //   },
+    //   children: <Widget>[
+    //     ListTile(
+    //       onTap: () {},
+    //       leading: Text('😊', style: TextStyle(fontSize: 42)),
+    //       title: Text('consectetur adipiscing elit duis tristique',style: TextStyle(fontWeight: FontWeight.bold)),
+    //       subtitle: Text('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'),
+    //     ),
+    //     ListTile(
+    //       onTap: () {},
+    //       leading: Text('😈', style: TextStyle(fontSize: 42)),
+    //       title: Text('consectetur lorem donec massa sapien', style: TextStyle(fontWeight: FontWeight.bold)),
+    //       subtitle: Text('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'),
+    //     ),
+    //   ],
+    //   separatorBuilder: (BuildContext context, int index) => const Divider(),
+    // );
   } else {
     return SafeArea(
       child: Center(
@@ -87,9 +108,6 @@ Widget showEntries() {
               Text('Add a new entry using the buttom below', style: TextStyle(fontSize: 16, color: Colors.grey)),
             ],
           ),
-        //   Text(
-        // 'No Entries',
-        // style: TextStyle(fontSize: 24, color: Colors.grey),
       ),
     );
   }

@@ -1,24 +1,25 @@
-import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Todo {
-  String key;
-  String subject;
-  bool completed;
-  String userId;
+class Entry {
+  final DateTime dateTime;
+  final String title;
+  final String desc;
+  final String content;
+  final int emotion;
+  final DocumentReference reference;
 
-  Todo(this.subject, this.userId, this.completed);
+  Entry.fromMap(Map<String, dynamic> map, {this.reference})
+      : dateTime = map['dateTime'],
+        title = map['title'],
+        desc = map['desc'],
+        content = map['content'],
+        emotion = map['emotion'];
 
-  Todo.fromSnapshot(DataSnapshot snapshot) :
-    key = snapshot.key,
-    userId = snapshot.value["userId"],
-    subject = snapshot.value["subject"],
-    completed = snapshot.value["completed"];
+  Entry.fromSnapshot(DocumentSnapshot snapshot)
+      : this.fromMap(snapshot.data, reference: snapshot.reference);
 
-  toJson() {
-    return {
-      "userId": userId,
-      "subject": subject,
-      "completed": completed,
-    };
-  }
+  @override
+  String toString() => "Entry<$title:$desc>";
+
+  // TODO: more getters like the one above
 }

@@ -10,6 +10,31 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      body: Scaffold(
+        appBar: AppBar(
+          elevation: 0,
+          title: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text('Entries', style: TextStyle(color: Colors.black)),
+              SizedBox(height: 12),
+              // TODO: add date picker
+              Visibility(
+                visible: true,
+                child: Text(
+                  'Today',
+                  style: TextStyle(fontSize: 16.0, color: Colors.black),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.transparent,
+          brightness: Brightness.light,
+          centerTitle: false,
+        ),
+        body: showEntries(),
+      ),
       bottomNavigationBar: BottomAppBar(
           color: Colors.white,
           child: new Row(
@@ -22,17 +47,18 @@ class HomeScreen extends StatelessWidget {
               ),
               IconButton(
                 icon: Icon(Icons.exit_to_app),
+                tooltip: "Sign Out",
                 onPressed: () {
                   // TODO: Find better way to dispose of current user session and dump ancestors
                   signOutGoogle().whenComplete(() {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return AuthScreen();
-                              },
-                            ),
-                          );
-                        });
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return AuthScreen();
+                        },
+                      ),
+                    );
+                  });
                 },
               ),
             ],
@@ -43,6 +69,28 @@ class HomeScreen extends StatelessWidget {
           icon: const Icon(Icons.add),
           label: const Text('Add entry'),
           onPressed: null),
+    );
+  }
+}
+
+Widget showEntries() {
+  if (false) {
+    // TODO: build list view
+  } else {
+    return SafeArea(
+      child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Text('No Entries', style: TextStyle(fontSize: 24, color: Colors.grey)),
+              Text('Add a new entry using the buttom below', style: TextStyle(fontSize: 16, color: Colors.grey)),
+            ],
+          ),
+        //   Text(
+        // 'No Entries',
+        // style: TextStyle(fontSize: 24, color: Colors.grey),
+      ),
     );
   }
 }

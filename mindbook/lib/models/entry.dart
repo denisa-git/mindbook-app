@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Entry {
-  final DateTime dateTime;
+  final Timestamp dateTime;
   final String title;
   final String desc;
   final String content;

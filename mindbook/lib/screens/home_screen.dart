@@ -1,10 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:mindbook/screens/auth_screen.dart';
+import 'package:intl/intl.dart';
+import 'package:mindbook/models/entry.dart';
+import 'package:mindbook/services/auth_service.dart';
 
-final FirebaseAuth _auth = FirebaseAuth.instance;
-final GoogleSignIn googleSignIn = GoogleSignIn();
+final AuthService _auth = AuthService();
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -12,28 +12,26 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       body: Scaffold(
         appBar: AppBar(
+          iconTheme: IconThemeData(color: Colors.black),
           elevation: 0,
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.today),
+              onPressed: () {},
+            )
+          ],
           title: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text('Entries', style: TextStyle(color: Colors.black)),
-              SizedBox(height: 12),
-              // TODO: add date picker
-              Visibility(
-                visible: true,
-                child: Text(
-                  'Today',
-                  style: TextStyle(fontSize: 16.0, color: Colors.black),
-                ),
-              ),
+              Text('Today', style: TextStyle(color: Colors.black)),
             ],
           ),
           backgroundColor: Colors.transparent,
           brightness: Brightness.light,
           centerTitle: false,
         ),
-        body: showEntries(),
+        body: showEntries(context),
       ),
       bottomNavigationBar: BottomAppBar(
           color: Colors.white,
@@ -48,17 +46,8 @@ class HomeScreen extends StatelessWidget {
               IconButton(
                 icon: Icon(Icons.exit_to_app),
                 tooltip: "Sign Out",
-                onPressed: () {
-                  // TODO: Find better way to dispose of current user session and dump ancestors
-                  signOutGoogle().whenComplete(() {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return AuthScreen();
-                        },
-                      ),
-                    );
-                  });
+                onPressed: () async {
+                  await _auth.signOut();
                 },
               ),
             ],
@@ -73,47 +62,68 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-Widget showEntries() {
-  if (true) {
-    // return ListView.separated(
-    //   padding: const EdgeInsets.all(8),
-    //   itemCount: 2,
-    //   itemBuilder: (BuildContext context, int index) {
-    //     return 
-    //   },
-    //   children: <Widget>[
-    //     ListTile(
-    //       onTap: () {},
-    //       leading: Text('😊', style: TextStyle(fontSize: 42)),
-    //       title: Text('consectetur adipiscing elit duis tristique',style: TextStyle(fontWeight: FontWeight.bold)),
-    //       subtitle: Text('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'),
-    //     ),
-    //     ListTile(
-    //       onTap: () {},
-    //       leading: Text('😈', style: TextStyle(fontSize: 42)),
-    //       title: Text('consectetur lorem donec massa sapien', style: TextStyle(fontWeight: FontWeight.bold)),
-    //       subtitle: Text('Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'),
-    //     ),
-    //   ],
-    //   separatorBuilder: (BuildContext context, int index) => const Divider(),
-    // );
-  } else {
-    return SafeArea(
-      child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Text('No Entries', style: TextStyle(fontSize: 24, color: Colors.grey)),
-              Text('Add a new entry using the buttom below', style: TextStyle(fontSize: 16, color: Colors.grey)),
-            ],
-          ),
-      ),
-    );
-  }
+Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
+  return ListView(
+    padding: const EdgeInsets.only(top: 20.0),
+    children: snapshot.map((data) => _buildListItem(context, data)).toList(),
+  );
 }
 
-Future<Null> signOutGoogle() async {
-  await googleSignIn.signOut();
-  await _auth.signOut();
+Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
+  final entry = Entry.fromSnapshot(data);
+
+  return ListTile(
+    onTap: () => print(entry),
+    leading: Text(toEmotion(entry.emotion), style: TextStyle(fontSize: 42)),
+    title: Text(entry.title, style: TextStyle(fontWeight: FontWeight.bold)),
+    subtitle: Row(
+      children: <Widget>[
+        Text(getTime(entry.dateTime.toDate()),
+            style: TextStyle(fontWeight: FontWeight.bold)),
+        Text(' - '),
+        Expanded(
+            child: Text(entry.desc,
+                overflow: TextOverflow.ellipsis, maxLines: 1, softWrap: true)),
+      ],
+    ),
+  );
+}
+
+String toEmotion(int emotionNum) {
+  // TODO: declare else where
+  final emotions = ['😈', '🤨', '😨', '🤢', '💩'];
+  return emotions[emotionNum];
+}
+
+String getTime(DateTime dateTime) {
+  // TODO: add shared pref option for date time format (24/12 hour)
+  var formatter = new DateFormat('jm');
+  return formatter.format(dateTime);
+}
+
+Widget showEntries(BuildContext context) {
+  return StreamBuilder<QuerySnapshot>(
+    stream: Firestore.instance.collection('entry').snapshots(),
+    builder: (context, snapshot) {
+      if (snapshot.data == null || snapshot.data.documents.length == 0) {
+        // return LinearProgressIndicator();
+        return SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Text('No Entries',
+                    style: TextStyle(fontSize: 24, color: Colors.grey)),
+                Text('Add a new entry using the buttom below',
+                    style: TextStyle(fontSize: 16, color: Colors.grey)),
+              ],
+            ),
+          ),
+        );
+      } else {
+        return _buildList(context, snapshot.data.documents);
+      }
+    },
+  );
 }

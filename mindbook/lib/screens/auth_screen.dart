@@ -80,8 +80,21 @@ class AuthScreen extends StatelessWidget {
                       },
                       color: Colors.blue,
                       textColor: Colors.white,
-                      icon: Icon(Icons.navigate_next),
+                      icon: Icon(Icons.person),
                       label: Text('Sign in with Google'),
+                      shape: new RoundedRectangleBorder(
+                        borderRadius: new BorderRadius.circular(30),
+                      )),
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  child: FlatButton(
+                      onPressed: () async {
+                        await _auth.signInAnonymously();
+                      },
+                      color: Colors.grey,
+                      textColor: Colors.white,
+                      child: Text('Sign in anonymously'),
                       shape: new RoundedRectangleBorder(
                         borderRadius: new BorderRadius.circular(30),
                       )),

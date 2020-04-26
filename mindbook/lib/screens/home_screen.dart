@@ -57,6 +57,13 @@ class HomeScreen extends StatelessWidget {
                           child: new Wrap(
                             children: <Widget>[
                               ListTile(
+                                leading: Icon(Icons.update),
+                                title: Text('Time format'),
+                                subtitle: Text('12-hour clock'),
+                                // TODO: show dialog to change time format
+                                onTap: () {},
+                              ),
+                              ListTile(
                                 leading: Icon(Icons.invert_colors),
                                 title: Text('Theme'),
                                 subtitle: Text('Light'),
@@ -68,6 +75,7 @@ class HomeScreen extends StatelessWidget {
                                 title: Text('Sign out'),
                                 onTap: () async {
                                   await _auth.signOut();
+                                  Navigator.of(context).pop();
                                 },
                               )
                             ],

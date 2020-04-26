@@ -23,6 +23,17 @@ class AuthService {
       AuthResult authResult = await _auth.signInWithCredential(credential);
       return authResult.user;
     } catch (error) {
+      print(error.toString());
+      return null;
+    }
+  }
+
+  Future signInAnonymously() async {
+    try {
+      AuthResult authResult = await _auth.signInAnonymously();
+      return authResult.user;
+    } catch (error) {
+      print(error.toString());
       return null;
     }
   }

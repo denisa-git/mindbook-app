@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Entry {
-  final Timestamp dateTime;
+  final Timestamp timestamp;
   final String title;
   final String desc;
   final String content;
@@ -9,7 +9,7 @@ class Entry {
   final DocumentReference reference;
 
   Entry.fromMap(Map<String, dynamic> map, {this.reference})
-      : dateTime = map['dateTime'],
+      : timestamp = map['timestamp'],
         title = map['title'],
         desc = map['desc'],
         content = map['content'],
@@ -20,6 +20,4 @@ class Entry {
 
   @override
   String toString() => "Entry<$title:$desc>";
-
-  // TODO: more getters like the one above
 }

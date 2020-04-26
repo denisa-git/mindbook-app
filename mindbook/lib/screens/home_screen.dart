@@ -44,12 +44,38 @@ class HomeScreen extends StatelessWidget {
                 onPressed: null,
               ),
               IconButton(
-                icon: Icon(Icons.exit_to_app),
-                tooltip: "Sign Out",
-                onPressed: () async {
-                  await _auth.signOut();
+                icon: Icon(Icons.settings),
+                onPressed: () {
+                  showModalBottomSheet(
+                      shape: new RoundedRectangleBorder(
+                        borderRadius: new BorderRadius.circular(8.0),
+                      ),
+                      context: context,
+                      builder: (context) {
+                        return Container(
+                          padding: const EdgeInsets.only(bottom: 20),
+                          child: new Wrap(
+                            children: <Widget>[
+                              ListTile(
+                                leading: Icon(Icons.invert_colors),
+                                title: Text('Theme'),
+                                subtitle: Text('Light'),
+                                // TODO: show dialog to change theme
+                                onTap: () {},
+                              ),
+                              ListTile(
+                                leading: Icon(Icons.exit_to_app),
+                                title: Text('Sign out'),
+                                onTap: () async {
+                                  await _auth.signOut();
+                                },
+                              )
+                            ],
+                          ),
+                        );
+                      });
                 },
-              ),
+              )
             ],
           )),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -78,7 +104,7 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
     title: Text(entry.title, style: TextStyle(fontWeight: FontWeight.bold)),
     subtitle: Row(
       children: <Widget>[
-        Text(getTime(entry.dateTime.toDate()),
+        Text(getTime(entry.timestamp.toDate()),
             style: TextStyle(fontWeight: FontWeight.bold)),
         Text(' - '),
         Expanded(
@@ -106,7 +132,6 @@ Widget showEntries(BuildContext context) {
     stream: Firestore.instance.collection('entry').snapshots(),
     builder: (context, snapshot) {
       if (snapshot.data == null || snapshot.data.documents.length == 0) {
-        // return LinearProgressIndicator();
         return SafeArea(
           child: Center(
             child: Column(

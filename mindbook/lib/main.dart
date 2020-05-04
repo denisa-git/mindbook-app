@@ -13,6 +13,9 @@ class MindbookApp extends StatelessWidget {
       value: AuthService().currentUser,
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
+        theme: ThemeData.light(),
+        darkTheme: ThemeData.dark(),
+        themeMode: ThemeMode.system,
         home: Screens(),
       ),
     );

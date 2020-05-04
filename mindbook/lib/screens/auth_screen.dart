@@ -29,12 +29,10 @@ class AuthScreen extends StatelessWidget {
                 TextField(
                     decoration: InputDecoration(
                   labelText: 'Email',
-                  labelStyle: TextStyle(color: Colors.black),
                 )),
                 TextField(
                   decoration: InputDecoration(
                     labelText: 'Password',
-                    labelStyle: TextStyle(color: Colors.black),
                   ),
                   obscureText: true,
                 ),
@@ -43,17 +41,15 @@ class AuthScreen extends StatelessWidget {
                   width: double.infinity,
                   child: FlatButton(
                       onPressed: () {},
-                      color: Colors.black,
-                      textColor: Colors.white,
-                      child: Text('Sign In'),
+                      color: Colors.white,
+                      child: Text('Sign In', style: TextStyle(color: Colors.black),),
                       shape: StadiumBorder()),
                 ),
                 SizedBox(
                   width: double.infinity,
                   child: OutlineButton(
                       onPressed: () {},
-                      highlightedBorderColor: Colors.black,
-                      textColor: Colors.black,
+                      // highlightedBorderColor: Colors.black,
                       child: Text('Sign Up'),
                       shape: StadiumBorder()),
                 ),
@@ -61,7 +57,6 @@ class AuthScreen extends StatelessWidget {
                   width: double.infinity,
                   child: FlatButton(
                       onPressed: () {},
-                      textColor: Colors.black,
                       child: Text(
                         'Forgot your password?',
                         style: TextStyle(

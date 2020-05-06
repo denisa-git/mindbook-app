@@ -8,7 +8,7 @@ class DatabaseService {
   final CollectionReference userCollection = Firestore.instance.collection('user');
 
   Future createUserPrefs() async {
-    final CollectionReference userEntryCollection = Firestore.instance.collection('user').document(this.userId).collection('entry');
+    // final CollectionReference userEntryCollection = Firestore.instance.collection('user').document(this.userId).collection('entry');
     return await userCollection.document(userId).setData({
       'theme': 'light',
       'timeformat': '12-hour'

@@ -2,29 +2,84 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mindbook/models/entry.dart';
+import 'package:mindbook/screens/add_entry_screen.dart';
 import 'package:mindbook/services/auth_service.dart';
+import 'package:mindbook/utils/time_util.dart';
 
-final AuthService _authService = AuthService();
+class HomeScreen extends StatefulWidget {
+  HomeScreen({Key key}) : super(key: key);
+  _HomeScreen createState() => _HomeScreen();
+}
 
-class HomeScreen extends StatelessWidget {
+class _HomeScreen extends State<HomeScreen> {
+  AuthService _authService;
+  TimeUtil _timeUtil;
+
+  @override
+  void initState() {
+    super.initState();
+    this._authService = AuthService();
+    this._timeUtil = TimeUtil(DateTime.now());
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Scaffold(
         appBar: AppBar(
-          elevation: 0,
           actions: <Widget>[
             IconButton(icon: Icon(Icons.sort), onPressed: () {}),
             IconButton(
               icon: Icon(Icons.today),
-              onPressed: () {},
+              onPressed: () {
+                setState(() {
+                  this._timeUtil.setDateTime(DateTime.now());
+                });
+              },
             )
           ],
           title: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text('Today'),
+              GestureDetector(
+                onTap: () async {
+                  DateTime _dateTime = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(1990),
+                    lastDate: DateTime(2100),
+                    builder: (BuildContext context, Widget child) {
+                      return Theme(
+                        data: Theme.of(context),
+                        child: child,
+                      );
+                    },
+                  );
+                  setState(() {
+                    this._timeUtil.setDateTime(_dateTime);
+                  });
+                },
+                child: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                  Column(
+                    children: <Widget>[
+                      Text(this._timeUtil.getDateTimeAsString('MMMMd')),
+                      if (this._timeUtil.isToday())
+                        Text(
+                          'Today',
+                          style: TextStyle(fontSize: 14.0),
+                        )
+                    ],
+                  ),
+                  SizedBox(width: 2.0),
+                  Icon(Icons.arrow_drop_down)
+                ]),
+              ),
             ],
           ),
           centerTitle: false,
@@ -45,8 +100,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                   context: context,
                   builder: (context) {
-                    return Container(
-                      padding: const EdgeInsets.only(bottom: 20),
+                    return SafeArea(
                       child: new Wrap(
                         children: <Widget>[
                           ListTile(
@@ -100,8 +154,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                   context: context,
                   builder: (context) {
-                    return Container(
-                      padding: const EdgeInsets.only(bottom: 20),
+                    return SafeArea(
                       child: new Wrap(
                         children: <Widget>[
                           ListTile(
@@ -145,10 +198,16 @@ class HomeScreen extends StatelessWidget {
       )),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton.extended(
-          elevation: 4.0,
           icon: const Icon(Icons.add),
           label: const Text('Add entry'),
-          onPressed: () {}),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => AddEntryPageView(),
+                  fullscreenDialog: true),
+            );
+          }),
     );
   }
 }

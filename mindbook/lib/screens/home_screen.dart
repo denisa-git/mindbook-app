@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mindbook/models/entry.dart';
 import 'package:mindbook/screens/add_entry_screen.dart';
 import 'package:mindbook/services/auth_service.dart';
 import 'package:mindbook/utils/time_util.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key key}) : super(key: key);
@@ -13,13 +15,14 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreen extends State<HomeScreen> {
   AuthService _authService;
+  FirebaseUser _currentUser;
   TimeUtil _timeUtil;
 
   @override
   void initState() {
     super.initState();
-    this._authService = AuthService();
-    this._timeUtil = TimeUtil(DateTime.now());
+    _authService = AuthService();
+    _timeUtil = TimeUtil(DateTime.now());
   }
 
   @override
@@ -29,6 +32,7 @@ class _HomeScreen extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    _currentUser = Provider.of<FirebaseUser>(context);
     return Scaffold(
       body: Scaffold(
         appBar: AppBar(
@@ -38,7 +42,7 @@ class _HomeScreen extends State<HomeScreen> {
               icon: Icon(Icons.today),
               onPressed: () {
                 setState(() {
-                  this._timeUtil.setDateTime(DateTime.now());
+                  _timeUtil.setDateTime(DateTime.now());
                 });
               },
             )
@@ -62,14 +66,14 @@ class _HomeScreen extends State<HomeScreen> {
                     },
                   );
                   setState(() {
-                    this._timeUtil.setDateTime(_dateTime);
+                    _timeUtil.setDateTime(_dateTime);
                   });
                 },
                 child: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
                   Column(
                     children: <Widget>[
-                      Text(this._timeUtil.getDateTimeAsString('MMMMd')),
-                      if (this._timeUtil.isToday())
+                      Text(_timeUtil.getDateTimeAsString('MMMMd')),
+                      if (_timeUtil.isToday())
                         Text(
                           'Today',
                           style: TextStyle(fontSize: 14.0),
@@ -103,15 +107,25 @@ class _HomeScreen extends State<HomeScreen> {
                     return SafeArea(
                       child: new Wrap(
                         children: <Widget>[
-                          ListTile(
-                            leading: Container(
-                              child: Icon(Icons.person),
-                              height: double.infinity,
+                          if (_currentUser.displayName != null)
+                            ListTile(
+                              leading: Container(
+                                child: Icon(Icons.person),
+                                height: double.infinity,
+                              ),
+                              title: Text(_currentUser.displayName),
+                              subtitle: Text(_currentUser.email),
+                              onTap: () {},
                             ),
-                            title: Text('Orion Koteki'),
-                            subtitle: Text('orion.koteki@gmail.com'),
-                            onTap: () {},
-                          ),
+                          if (_currentUser.displayName == null)
+                            ListTile(
+                              leading: Container(
+                                child: Icon(Icons.person),
+                                height: double.infinity,
+                              ),
+                              title: Text('Anonymous'),
+                              onTap: () {},
+                            ),
                           Divider(),
                           ListTile(
                             leading: Container(

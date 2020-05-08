@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:mindbook/models/emotion.dart';
 import 'package:mindbook/utils/emotion_util.dart';
 import 'package:mindbook/utils/tag_util.dart';
 import 'package:mindbook/utils/time_util.dart';
@@ -16,6 +18,13 @@ class _AddEntryPageView extends State<AddEntryPageView> {
   List<TagUil> _tags;
   List<EmotionUil> _emotions;
   WheelUtil _wheelUtil;
+  // Wheel of emotion
+  List<TagUil> _primaryWheel;
+  List<String> _primaryChoices;
+  List<TagUil> _secondaryWheel;
+  List<String> _secondaryChoices;
+  List<TagUil> _tertiaryWheel;
+  List<String> _tertiaryChoices;
 
   @override
   void initState() {
@@ -43,14 +52,27 @@ class _AddEntryPageView extends State<AddEntryPageView> {
       TagUil('Volunteering', false),
     ];
     _wheelUtil = WheelUtil();
+    _primaryWheel =
+        _wheelUtil.getPrimaryList().map((e) => TagUil(e, false)).toList();
+    _secondaryWheel = _wheelUtil
+        .getSecondaryList(_primaryChoices)
+        .map((e) => TagUil(e, false))
+        .toList();
+    _tertiaryWheel = _wheelUtil
+        .getTertiaryList(_secondaryChoices)
+        .map((e) => TagUil(e, false))
+        .toList();
     _pageController = PageController();
-    // print(_wheelUtil.getPrimaryList());
   }
 
   @override
   void dispose() {
     _pageController.dispose();
     super.dispose();
+  }
+
+  String capitalize(String _string) {
+    return "${_string[0].toUpperCase()}${_string.substring(1)}";
   }
 
   @override
@@ -312,7 +334,7 @@ class _AddEntryPageView extends State<AddEntryPageView> {
                       ),
                       Wrap(
                         spacing: 12,
-                        // runSpacing: 1,
+                        alignment: WrapAlignment.center,
                         children: List<Widget>.generate(
                           _tags.length,
                           (index) {
@@ -375,31 +397,121 @@ class _AddEntryPageView extends State<AddEntryPageView> {
                     children: <Widget>[
                       Spacer(),
                       Text(
-                        'Select the emotion below that best describes this experience',
+                        'Select the emotions below that best describes this experience',
                         style: TextStyle(fontSize: 24),
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(
                         height: 16,
                       ),
-                      // Wrap(
-                      //   spacing: 12,
-                      //   // runSpacing: 1,
-                      //   children: List<Widget>.generate(
-                      //     _wheelUtil.getRingZero().length,
-                      //     (index) {
-                      //       return FilterChip(
-                      //         label: Text(_wheelUtil.getRingZero()[index]),
-                      //         selected: _tags[index].getSelected(),
-                      //         onSelected: (bool selected) {
-                      //           setState(() {
-                      //             _tags[index].setSelected(selected);
-                      //           });
-                      //         },
-                      //       );
-                      //     },
-                      //   ).toList(),
-                      // ),
+                      Row(
+                        children: <Widget>[
+                          Text('Primary'),
+                          SizedBox(
+                            width: 8,
+                          ),
+                          Expanded(child: Divider())
+                        ],
+                      ),
+                      Wrap(
+                        spacing: 14,
+                        alignment: WrapAlignment.start,
+                        children: List<Widget>.generate(
+                          _primaryWheel.length,
+                          (index) {
+                            return FilterChip(
+                              label: Text(capitalize(_primaryWheel[index].getTag())),
+                              selected: _primaryWheel[index].getSelected(),
+                              onSelected: (bool selected) {
+                                setState(() {
+                                  _primaryWheel[index].setSelected(selected);
+                                  _primaryChoices = _primaryWheel
+                                      .where((element) =>
+                                          element.getSelected() == true)
+                                      .map((e) => e.getTag())
+                                      .toList();
+                                  _secondaryWheel = _wheelUtil
+                                      .getSecondaryList(_primaryChoices)
+                                      .map((e) => TagUil(e, false))
+                                      .toList();
+                                  _tertiaryWheel = _wheelUtil
+                                      .getSecondaryList(_secondaryChoices)
+                                      .map((e) => TagUil(e, false))
+                                      .toList();
+                                });
+                              },
+                            );
+                          },
+                        ).toList(),
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Text('Secondary'),
+                          SizedBox(
+                            width: 8,
+                          ),
+                          Expanded(child: Divider())
+                        ],
+                      ),
+                      Wrap(
+                        spacing: 14,
+                        alignment: WrapAlignment.start,
+                        children: List<Widget>.generate(
+                          _secondaryWheel.length,
+                          (index) {
+                            return FilterChip(
+                              label: Text(capitalize(_secondaryWheel[index].getTag())),
+                              selected: _secondaryWheel[index].getSelected(),
+                              onSelected: (bool selected) {
+                                setState(() {
+                                  _secondaryWheel[index].setSelected(selected);
+                                  _secondaryChoices = _secondaryWheel
+                                      .where((element) =>
+                                          element.getSelected() == true)
+                                      .map((e) => e.getTag())
+                                      .toList();
+                                  _tertiaryWheel = _wheelUtil
+                                      .getTertiaryList(_secondaryChoices)
+                                      .map((e) => TagUil(e, false))
+                                      .toList();
+                                });
+                              },
+                            );
+                          },
+                        ).toList(),
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Text('Tertiary'),
+                          SizedBox(
+                            width: 8,
+                          ),
+                          Expanded(child: Divider())
+                        ],
+                      ),
+                      Wrap(
+                        spacing: 14,
+                        alignment: WrapAlignment.start,
+                        children: List<Widget>.generate(
+                          _tertiaryWheel.length,
+                          (index) {
+                            return FilterChip(
+                              label: Text(capitalize(_tertiaryWheel[index].getTag())),
+                              selected: _tertiaryWheel[index].getSelected(),
+                              onSelected: (bool selected) {
+                                setState(() {
+                                  _tertiaryWheel[index].setSelected(selected);
+                                  _tertiaryChoices = _tertiaryWheel
+                                      .where((element) =>
+                                          element.getSelected() == true)
+                                      .map((e) => e.getTag())
+                                      .toList();
+                                });
+                              },
+                            );
+                          },
+                        ).toList(),
+                      ),
                       Spacer(),
                       Row(
                         children: <Widget>[

@@ -23,4 +23,7 @@ class TagUil {
     return _tag;
   }
 
+  @override
+  String toString() => "TagUil<$_tag:$_selected>";
+
 }

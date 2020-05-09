@@ -5,19 +5,28 @@ class Entry {
   final String title;
   final String content;
   final int emotion;
+  final List<String> tags;
+  final List<String> wheelEmotions;
   final DocumentReference reference;
 
   Entry.fromMap(Map<String, dynamic> map, {this.reference})
       : timestamp = map['timestamp'],
         title = map['title'],
         content = map['content'],
-        emotion = map['emotion'];
+        emotion = map['emotion'],
+        tags = List.from(['tags']),
+        wheelEmotions = map['wheelEmotions'];
 
   Entry.fromSnapshot(DocumentSnapshot snapshot)
       : this.fromMap(snapshot.data, reference: snapshot.reference);
 
   Map<String, dynamic> toJson() => {
+    'timestamp': timestamp,
     'title': title,
+    'content': content,
+    'emotion': emotion,
+    'tags': tags,
+    'wheelEmotions': wheelEmotions
   };
 
   @override

@@ -9,11 +9,15 @@ class DatabaseService {
     userId = uid;
   }
 
-  final CollectionReference userCollection = Firestore.instance.collection('user');
-  final CollectionReference entryCollection = Firestore.instance.collection('user').document(userId).collection('entry');
+  final CollectionReference _userCollection = Firestore.instance.collection('user');
+  final CollectionReference _entryCollection = Firestore.instance.collection('user').document(userId).collection('entry');
 
   createEntry(Entry entry) {
-    return entryCollection.add(entry.toJson());
+    return _entryCollection.add(entry.toJson());
+  }
+
+  entrySnapshots() {
+    return _entryCollection.snapshots();
   }
 
 }

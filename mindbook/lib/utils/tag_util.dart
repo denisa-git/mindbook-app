@@ -7,6 +7,10 @@ class TagUil {
     _selected= selected;
   }
 
+  Map<String, bool> getMap() {
+    return {_tag: _selected};
+  }
+
   void setSelected(bool selected) {
     _selected = selected;
   }

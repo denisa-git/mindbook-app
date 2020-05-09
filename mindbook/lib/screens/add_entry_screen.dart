@@ -1,5 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:mindbook/models/entry.dart';
@@ -38,7 +38,7 @@ class _AddEntryPageView extends State<AddEntryPageView> {
   void initState() {
     super.initState();
     _timeUtil = TimeUtil(DateTime.now());
-    _emotionValue = 3;
+    _emotionValue = 2;
     _emotions = [
       EmotionUil('Terrible', '😞'),
       EmotionUil('Bad', '😓'),
@@ -640,12 +640,18 @@ class _AddEntryPageView extends State<AddEntryPageView> {
                               // Submit
                               Map<String, dynamic> submitMap = {
                                 'title': _entryTitle.text,
-                                'content': _entryContent.text
+                                'content': _entryContent.text,
+                                'timestamp': Timestamp.fromDate(_timeUtil.getDateTime()),
+                                'emotion': _emotionValue.toInt(),
+                                'tags': _tags.where((element) => element.getSelected() == true).map((e) => e.getTag()).toList(),
+                                'wheelEmotions': _tertiaryChoices
                                 };
                               Entry submitEntry = Entry.fromMap(submitMap);
                               DatabaseService db =
                                   DatabaseService(_currentUser.uid);
                               db.createEntry(submitEntry);
+                              // Display result
+                              Navigator.pop(context);
                             },
                             child: Row(
                                 mainAxisSize: MainAxisSize.min,

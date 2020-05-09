@@ -237,7 +237,7 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
   final entry = Entry.fromSnapshot(data);
 
   return ListTile(
-    onTap: () => print(entry),
+    onTap: () async => await Firestore.instance.runTransaction((transaction) => transaction.delete(entry.reference)),
     leading: Text(toEmotion(entry.emotion), style: TextStyle(fontSize: 42)),
     title: Text(entry.title, style: TextStyle(fontWeight: FontWeight.bold)),
     subtitle: Row(
@@ -245,17 +245,16 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
         Text(getTime(entry.timestamp.toDate()),
             style: TextStyle(fontWeight: FontWeight.bold)),
         Text(' - '),
-        // Expanded(
-        //     child: Text(entry.desc,
-        //         overflow: TextOverflow.ellipsis, maxLines: 1, softWrap: true)),
+        Expanded(
+            child: Text(entry.content,
+                overflow: TextOverflow.ellipsis, maxLines: 1, softWrap: true)),
       ],
     ),
   );
 }
 
 String toEmotion(int emotionNum) {
-  // TODO: declare else where
-  final emotions = ['😈', '🤨', '😨', '🤢', '💩'];
+  final emotions = ['😞', '😓', '🙂', '😌', '🤩'];
   return emotions[emotionNum];
 }
 
@@ -266,8 +265,9 @@ String getTime(DateTime dateTime) {
 }
 
 Widget showEntries(BuildContext context) {
+  FirebaseUser _currentUser = Provider.of<FirebaseUser>(context);
   return StreamBuilder<QuerySnapshot>(
-    stream: Firestore.instance.collection('entry').snapshots(),
+    stream: Firestore.instance.collection('user').document(_currentUser.uid).collection('entry').snapshots(),
     builder: (context, snapshot) {
       if (snapshot.data == null || snapshot.data.documents.length == 0) {
         return SafeArea(

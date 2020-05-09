@@ -1,18 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mindbook/models/entry.dart';
 
 class DatabaseService {
 
-  final String userId;
-  DatabaseService({this.userId});
+  static String userId;
+
+  DatabaseService(String uid) {
+    userId = uid;
+  }
 
   final CollectionReference userCollection = Firestore.instance.collection('user');
+  final CollectionReference entryCollection = Firestore.instance.collection('user').document(userId).collection('entry');
 
-  Future createUserPrefs() async {
-    // final CollectionReference userEntryCollection = Firestore.instance.collection('user').document(this.userId).collection('entry');
-    return await userCollection.document(userId).setData({
-      'theme': 'light',
-      'timeformat': '12-hour'
-    });
+  createEntry(Entry entry) {
+    return entryCollection.add(entry.toJson());
   }
 
 }

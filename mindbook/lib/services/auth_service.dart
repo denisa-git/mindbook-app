@@ -1,16 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'database_service.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Stream<FirebaseUser> get currentUser {
     return _auth.onAuthStateChanged;
-  }
-
-  createUserPrefs(uid) async {
-    await DatabaseService(userId: uid).createUserPrefs();
   }
 
   Future signInWithGoogle() async {
@@ -26,7 +21,6 @@ class AuthService {
       );
 
       AuthResult authResult = await _auth.signInWithCredential(credential);
-      // createUserPrefs(authResult.user.uid);
       return authResult.user;
     } catch (error) {
       print(error.toString());
@@ -37,7 +31,6 @@ class AuthService {
   Future signInAnonymously() async {
     try {
       AuthResult authResult = await _auth.signInAnonymously();
-      // createUserPrefs(authResult.user.uid);
       return authResult.user;
     } catch (error) {
       print(error.toString());

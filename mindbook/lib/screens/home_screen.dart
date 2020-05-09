@@ -245,9 +245,9 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
         Text(getTime(entry.timestamp.toDate()),
             style: TextStyle(fontWeight: FontWeight.bold)),
         Text(' - '),
-        Expanded(
-            child: Text(entry.desc,
-                overflow: TextOverflow.ellipsis, maxLines: 1, softWrap: true)),
+        // Expanded(
+        //     child: Text(entry.desc,
+        //         overflow: TextOverflow.ellipsis, maxLines: 1, softWrap: true)),
       ],
     ),
   );

@@ -1,10 +1,14 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:mindbook/models/emotion.dart';
+import 'package:mindbook/models/entry.dart';
+import 'package:mindbook/services/database_service.dart';
 import 'package:mindbook/utils/emotion_util.dart';
 import 'package:mindbook/utils/tag_util.dart';
 import 'package:mindbook/utils/time_util.dart';
 import 'package:mindbook/utils/wheel_util.dart';
+import 'package:provider/provider.dart';
 
 class AddEntryPageView extends StatefulWidget {
   AddEntryPageView({Key key}) : super(key: key);
@@ -13,6 +17,7 @@ class AddEntryPageView extends StatefulWidget {
 
 class _AddEntryPageView extends State<AddEntryPageView> {
   PageController _pageController;
+  FirebaseUser _currentUser;
   TimeUtil _timeUtil;
   double _emotionValue;
   List<TagUil> _tags;
@@ -25,6 +30,9 @@ class _AddEntryPageView extends State<AddEntryPageView> {
   List<String> _secondaryChoices;
   List<TagUil> _tertiaryWheel;
   List<String> _tertiaryChoices;
+
+  TextEditingController _entryTitle;
+  TextEditingController _entryContent;
 
   @override
   void initState() {
@@ -62,6 +70,8 @@ class _AddEntryPageView extends State<AddEntryPageView> {
         .getTertiaryList(_secondaryChoices)
         .map((e) => TagUil(e, false))
         .toList();
+    _entryTitle = new TextEditingController();
+    _entryContent = new TextEditingController();
     _pageController = PageController();
   }
 
@@ -77,6 +87,7 @@ class _AddEntryPageView extends State<AddEntryPageView> {
 
   @override
   Widget build(BuildContext context) {
+    _currentUser = Provider.of<FirebaseUser>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Add entry'),
@@ -156,6 +167,7 @@ class _AddEntryPageView extends State<AddEntryPageView> {
                         ],
                       ),
                       Spacer(),
+                      Divider(),
                       Row(
                         children: <Widget>[
                           Spacer(),
@@ -206,6 +218,7 @@ class _AddEntryPageView extends State<AddEntryPageView> {
                         textAlign: TextAlign.center,
                       ),
                       Spacer(),
+                      Divider(),
                       Row(
                         children: <Widget>[
                           FlatButton.icon(
@@ -279,6 +292,7 @@ class _AddEntryPageView extends State<AddEntryPageView> {
                         },
                       ),
                       Spacer(),
+                      Divider(),
                       Row(
                         children: <Widget>[
                           FlatButton.icon(
@@ -351,6 +365,7 @@ class _AddEntryPageView extends State<AddEntryPageView> {
                         ).toList(),
                       ),
                       Spacer(),
+                      Divider(),
                       Row(
                         children: <Widget>[
                           FlatButton.icon(
@@ -395,124 +410,145 @@ class _AddEntryPageView extends State<AddEntryPageView> {
                   padding: EdgeInsets.symmetric(horizontal: 32),
                   child: Column(
                     children: <Widget>[
-                      Spacer(),
-                      Text(
-                        'Select the emotions below that best describes this experience',
-                        style: TextStyle(fontSize: 24),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(
-                        height: 16,
-                      ),
-                      Row(
-                        children: <Widget>[
-                          Text('Primary'),
-                          SizedBox(
-                            width: 8,
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: <Widget>[
+                              SizedBox(
+                                height: 16,
+                              ),
+                              Text(
+                                'Select the emotions below that best describes this experience',
+                                style: TextStyle(fontSize: 24),
+                                textAlign: TextAlign.center,
+                              ),
+                              SizedBox(
+                                height: 16,
+                              ),
+                              Row(
+                                children: <Widget>[
+                                  Text('Primary'),
+                                  SizedBox(
+                                    width: 8,
+                                  ),
+                                  Expanded(child: Divider())
+                                ],
+                              ),
+                              Wrap(
+                                spacing: 14,
+                                alignment: WrapAlignment.start,
+                                children: List<Widget>.generate(
+                                  _primaryWheel.length,
+                                  (index) {
+                                    return FilterChip(
+                                      label: Text(capitalize(
+                                          _primaryWheel[index].getTag())),
+                                      selected:
+                                          _primaryWheel[index].getSelected(),
+                                      onSelected: (bool selected) {
+                                        setState(() {
+                                          _primaryWheel[index]
+                                              .setSelected(selected);
+                                          _primaryChoices = _primaryWheel
+                                              .where((element) =>
+                                                  element.getSelected() == true)
+                                              .map((e) => e.getTag())
+                                              .toList();
+                                          _secondaryWheel = _wheelUtil
+                                              .getSecondaryList(_primaryChoices)
+                                              .map((e) => TagUil(e, false))
+                                              .toList();
+                                          _tertiaryWheel = _wheelUtil
+                                              .getSecondaryList(
+                                                  _secondaryChoices)
+                                              .map((e) => TagUil(e, false))
+                                              .toList();
+                                        });
+                                      },
+                                    );
+                                  },
+                                ).toList(),
+                              ),
+                              Row(
+                                children: <Widget>[
+                                  Text('Secondary'),
+                                  SizedBox(
+                                    width: 8,
+                                  ),
+                                  Expanded(child: Divider())
+                                ],
+                              ),
+                              Wrap(
+                                spacing: 14,
+                                alignment: WrapAlignment.start,
+                                children: List<Widget>.generate(
+                                  _secondaryWheel.length,
+                                  (index) {
+                                    return FilterChip(
+                                      label: Text(capitalize(
+                                          _secondaryWheel[index].getTag())),
+                                      selected:
+                                          _secondaryWheel[index].getSelected(),
+                                      onSelected: (bool selected) {
+                                        setState(() {
+                                          _secondaryWheel[index]
+                                              .setSelected(selected);
+                                          _secondaryChoices = _secondaryWheel
+                                              .where((element) =>
+                                                  element.getSelected() == true)
+                                              .map((e) => e.getTag())
+                                              .toList();
+                                          _tertiaryWheel = _wheelUtil
+                                              .getTertiaryList(
+                                                  _secondaryChoices)
+                                              .map((e) => TagUil(e, false))
+                                              .toList();
+                                        });
+                                      },
+                                    );
+                                  },
+                                ).toList(),
+                              ),
+                              Row(
+                                children: <Widget>[
+                                  Text('Tertiary'),
+                                  SizedBox(
+                                    width: 8,
+                                  ),
+                                  Expanded(child: Divider())
+                                ],
+                              ),
+                              Wrap(
+                                spacing: 14,
+                                alignment: WrapAlignment.start,
+                                children: List<Widget>.generate(
+                                  _tertiaryWheel.length,
+                                  (index) {
+                                    return FilterChip(
+                                      label: Text(capitalize(
+                                          _tertiaryWheel[index].getTag())),
+                                      selected:
+                                          _tertiaryWheel[index].getSelected(),
+                                      onSelected: (bool selected) {
+                                        setState(() {
+                                          _tertiaryWheel[index]
+                                              .setSelected(selected);
+                                          _tertiaryChoices = _tertiaryWheel
+                                              .where((element) =>
+                                                  element.getSelected() == true)
+                                              .map((e) => e.getTag())
+                                              .toList();
+                                        });
+                                      },
+                                    );
+                                  },
+                                ).toList(),
+                              ),
+                            ],
                           ),
-                          Expanded(child: Divider())
-                        ],
+                        ),
                       ),
-                      Wrap(
-                        spacing: 14,
-                        alignment: WrapAlignment.start,
-                        children: List<Widget>.generate(
-                          _primaryWheel.length,
-                          (index) {
-                            return FilterChip(
-                              label: Text(capitalize(_primaryWheel[index].getTag())),
-                              selected: _primaryWheel[index].getSelected(),
-                              onSelected: (bool selected) {
-                                setState(() {
-                                  _primaryWheel[index].setSelected(selected);
-                                  _primaryChoices = _primaryWheel
-                                      .where((element) =>
-                                          element.getSelected() == true)
-                                      .map((e) => e.getTag())
-                                      .toList();
-                                  _secondaryWheel = _wheelUtil
-                                      .getSecondaryList(_primaryChoices)
-                                      .map((e) => TagUil(e, false))
-                                      .toList();
-                                  _tertiaryWheel = _wheelUtil
-                                      .getSecondaryList(_secondaryChoices)
-                                      .map((e) => TagUil(e, false))
-                                      .toList();
-                                });
-                              },
-                            );
-                          },
-                        ).toList(),
-                      ),
-                      Row(
-                        children: <Widget>[
-                          Text('Secondary'),
-                          SizedBox(
-                            width: 8,
-                          ),
-                          Expanded(child: Divider())
-                        ],
-                      ),
-                      Wrap(
-                        spacing: 14,
-                        alignment: WrapAlignment.start,
-                        children: List<Widget>.generate(
-                          _secondaryWheel.length,
-                          (index) {
-                            return FilterChip(
-                              label: Text(capitalize(_secondaryWheel[index].getTag())),
-                              selected: _secondaryWheel[index].getSelected(),
-                              onSelected: (bool selected) {
-                                setState(() {
-                                  _secondaryWheel[index].setSelected(selected);
-                                  _secondaryChoices = _secondaryWheel
-                                      .where((element) =>
-                                          element.getSelected() == true)
-                                      .map((e) => e.getTag())
-                                      .toList();
-                                  _tertiaryWheel = _wheelUtil
-                                      .getTertiaryList(_secondaryChoices)
-                                      .map((e) => TagUil(e, false))
-                                      .toList();
-                                });
-                              },
-                            );
-                          },
-                        ).toList(),
-                      ),
-                      Row(
-                        children: <Widget>[
-                          Text('Tertiary'),
-                          SizedBox(
-                            width: 8,
-                          ),
-                          Expanded(child: Divider())
-                        ],
-                      ),
-                      Wrap(
-                        spacing: 14,
-                        alignment: WrapAlignment.start,
-                        children: List<Widget>.generate(
-                          _tertiaryWheel.length,
-                          (index) {
-                            return FilterChip(
-                              label: Text(capitalize(_tertiaryWheel[index].getTag())),
-                              selected: _tertiaryWheel[index].getSelected(),
-                              onSelected: (bool selected) {
-                                setState(() {
-                                  _tertiaryWheel[index].setSelected(selected);
-                                  _tertiaryChoices = _tertiaryWheel
-                                      .where((element) =>
-                                          element.getSelected() == true)
-                                      .map((e) => e.getTag())
-                                      .toList();
-                                });
-                              },
-                            );
-                          },
-                        ).toList(),
-                      ),
-                      Spacer(),
+                      Divider(),
                       Row(
                         children: <Widget>[
                           FlatButton.icon(
@@ -545,6 +581,78 @@ class _AddEntryPageView extends State<AddEntryPageView> {
                                   Text('Next'),
                                   SizedBox(width: 8.0),
                                   Icon(Icons.keyboard_arrow_right)
+                                ]),
+                          ),
+                        ],
+                      )
+                    ],
+                  ))),
+          // Submit: 5
+          SafeArea(
+              child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 32),
+                  child: Column(
+                    children: <Widget>[
+                      Expanded(
+                          child: SingleChildScrollView(
+                        child: Column(
+                          children: <Widget>[
+                            SizedBox(
+                              height: 16,
+                            ),
+                            TextField(
+                              maxLines: null,
+                              controller: _entryTitle,
+                              decoration: InputDecoration.collapsed(
+                                hintText: 'Title',
+                              ),
+                            ),
+                            Divider(),
+                            TextField(
+                              maxLines: null,
+                              controller: _entryContent,
+                              decoration: InputDecoration.collapsed(
+                                hintText: 'Entry',
+                              ),
+                            )
+                          ],
+                        ),
+                      )),
+                      Divider(),
+                      Row(
+                        children: <Widget>[
+                          FlatButton.icon(
+                            icon: Icon(Icons.keyboard_arrow_left),
+                            label: Text('Back'),
+                            onPressed: () {
+                              if (_pageController.hasClients) {
+                                _pageController.animateToPage(
+                                  4,
+                                  duration: const Duration(milliseconds: 400),
+                                  curve: Curves.easeInOut,
+                                );
+                              }
+                            },
+                          ),
+                          Spacer(),
+                          FlatButton(
+                            onPressed: () {
+                              // Submit
+                              Map<String, dynamic> submitMap = {
+                                'title': _entryTitle.text,
+                                'content': _entryContent.text
+                                };
+                              Entry submitEntry = Entry.fromMap(submitMap);
+                              DatabaseService db =
+                                  DatabaseService(_currentUser.uid);
+                              db.createEntry(submitEntry);
+                            },
+                            child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  Text('Submit'),
+                                  SizedBox(width: 8.0),
+                                  Icon(Icons.save)
                                 ]),
                           ),
                         ],

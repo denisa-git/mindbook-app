@@ -16,11 +16,13 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreen extends State<HomeScreen> {
   AuthService _authService;
   FirebaseUser _currentUser;
+  bool _desc;
   TimeUtil _timeUtil;
 
   @override
   void initState() {
     super.initState();
+    _desc = true;
     _authService = AuthService();
     _timeUtil = TimeUtil(DateTime.now());
   }
@@ -37,7 +39,13 @@ class _HomeScreen extends State<HomeScreen> {
       body: Scaffold(
         appBar: AppBar(
           actions: <Widget>[
-            IconButton(icon: Icon(Icons.sort), onPressed: () {}),
+            IconButton(
+                icon: Icon(Icons.sort),
+                onPressed: () {
+                  setState(() {
+                    _desc = !_desc;
+                  });
+                }),
             IconButton(
               icon: Icon(Icons.today),
               onPressed: () {
@@ -88,7 +96,7 @@ class _HomeScreen extends State<HomeScreen> {
           ),
           centerTitle: false,
         ),
-        body: showEntries(context),
+        body: showEntries(context, _desc, _timeUtil),
       ),
       bottomNavigationBar: BottomAppBar(
           child: new Row(
@@ -227,9 +235,13 @@ class _HomeScreen extends State<HomeScreen> {
 }
 
 Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
-  return ListView(
-    padding: const EdgeInsets.only(top: 20.0),
-    children: snapshot.map((data) => _buildListItem(context, data)).toList(),
+  List data = snapshot.map((data) => _buildListItem(context, data)).toList();
+  return ListView.separated(
+    itemCount: snapshot.length,
+    separatorBuilder: (BuildContext context, int index) => Divider(),
+    itemBuilder: (BuildContext context, int index) {
+      return data[index];
+    },
   );
 }
 
@@ -237,7 +249,8 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
   final entry = Entry.fromSnapshot(data);
 
   return ListTile(
-    onTap: () async => await Firestore.instance.runTransaction((transaction) => transaction.delete(entry.reference)),
+    onTap: () async => await Firestore.instance
+        .runTransaction((transaction) => transaction.delete(entry.reference)),
     leading: Text(toEmotion(entry.emotion), style: TextStyle(fontSize: 42)),
     title: Text(entry.title, style: TextStyle(fontWeight: FontWeight.bold)),
     subtitle: Row(
@@ -264,10 +277,19 @@ String getTime(DateTime dateTime) {
   return formatter.format(dateTime);
 }
 
-Widget showEntries(BuildContext context) {
+Widget showEntries(BuildContext context, bool _desc, TimeUtil _timeUtil) {
   FirebaseUser _currentUser = Provider.of<FirebaseUser>(context);
   return StreamBuilder<QuerySnapshot>(
-    stream: Firestore.instance.collection('user').document(_currentUser.uid).collection('entry').snapshots(),
+    stream: Firestore.instance
+        .collection('user')
+        .document(_currentUser.uid)
+        .collection('entry')
+        .where('timestamp',
+            isGreaterThanOrEqualTo: _timeUtil.getTodayStartDateTime())
+        .where('timestamp',
+            isLessThanOrEqualTo: _timeUtil.getTodayEndDateTime())
+        .orderBy('timestamp', descending: _desc)
+        .snapshots(),
     builder: (context, snapshot) {
       if (snapshot.data == null || snapshot.data.documents.length == 0) {
         return SafeArea(

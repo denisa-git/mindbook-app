@@ -11,9 +11,21 @@ class TimeUtil {
   bool isToday() {
     DateTime now = DateTime.now();
     DateTime today = DateTime(now.year, now.month, now.day);
-    DateTime _dateTimeFormatted = DateTime(_dateTime.year,
-        _dateTime.month, _dateTime.day);
+    DateTime _dateTimeFormatted =
+        DateTime(_dateTime.year, _dateTime.month, _dateTime.day);
     return _dateTimeFormatted == today;
+  }
+
+  DateTime getTodayStartDateTime() {
+    DateTime _dateTimeFormatted =
+        DateTime(_dateTime.year, _dateTime.month, _dateTime.day);
+    return _dateTimeFormatted;
+  }
+
+  DateTime getTodayEndDateTime() {
+    DateTime _dateTimeFormatted =
+        DateTime(_dateTime.year, _dateTime.month, _dateTime.day + 1);
+    return _dateTimeFormatted;
   }
 
   void setDateTime(DateTime dateTime) {
@@ -32,7 +44,8 @@ class TimeUtil {
 
   void setTimeOfDay(TimeOfDay timeOfDay) {
     if (timeOfDay != null) {
-      _dateTime = DateTime(_dateTime.year, _dateTime.month, _dateTime.day, timeOfDay.hour, timeOfDay.minute);
+      _dateTime = DateTime(_dateTime.year, _dateTime.month, _dateTime.day,
+          timeOfDay.hour, timeOfDay.minute);
     }
   }
 
@@ -43,5 +56,4 @@ class TimeUtil {
   String getTimeOfDayAsString() {
     return DateFormat.jm().format(_dateTime);
   }
-
 }

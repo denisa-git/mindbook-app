@@ -268,11 +268,16 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => ViewEntryScreen(entry: entry), fullscreenDialog: false),
+            builder: (context) => ViewEntryScreen(entry: entry),
+            fullscreenDialog: false),
       );
     },
     leading: Text(toEmotion(entry.emotion), style: TextStyle(fontSize: 42)),
-    title: Text(entry.title, style: TextStyle(fontWeight: FontWeight.bold)),
+    title: Text(entry.title,
+        style: TextStyle(fontWeight: FontWeight.bold),
+        overflow: TextOverflow.ellipsis,
+        maxLines: 2,
+        softWrap: true),
     subtitle: Row(
       children: <Widget>[
         Text(DateFormat('jm').format(entry.timestamp.toDate()),

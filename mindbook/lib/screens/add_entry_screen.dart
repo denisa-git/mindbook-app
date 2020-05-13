@@ -36,7 +36,6 @@ class _AddEntryScreen extends State<AddEntryScreen> {
 
   @override
   void initState() {
-    super.initState();
     _timeUtil = TimeUtil(DateTime.now());
     _emotionValue = 2;
     _emotions = [
@@ -73,6 +72,7 @@ class _AddEntryScreen extends State<AddEntryScreen> {
     _entryTitle = new TextEditingController();
     _entryContent = new TextEditingController();
     _pageController = PageController();
+    super.initState();
   }
 
   @override
@@ -655,7 +655,7 @@ class _AddEntryScreen extends State<AddEntryScreen> {
                                         element.getSelected() == true)
                                     .map((e) => e.getTag())
                                     .toList(),
-                                'wheelEmotions': _tertiaryChoices
+                                'wheelEmotions': _tertiaryChoices == null? []:_tertiaryChoices
                               };
                               Entry submitEntry = Entry.fromMap(submitMap);
                               DatabaseService db =

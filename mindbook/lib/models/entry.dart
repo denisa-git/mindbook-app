@@ -14,8 +14,8 @@ class Entry {
         title = map['title'],
         content = map['content'],
         emotion = map['emotion'],
-        tags = List.from(['tags']),
-        wheelEmotions = map['wheelEmotions'];
+        tags = List.from(map['tags']),
+        wheelEmotions = List.from(map['wheelEmotions']);
 
   Entry.fromSnapshot(DocumentSnapshot snapshot)
       : this.fromMap(snapshot.data, reference: snapshot.reference);

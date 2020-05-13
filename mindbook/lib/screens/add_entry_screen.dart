@@ -10,12 +10,12 @@ import 'package:mindbook/utils/time_util.dart';
 import 'package:mindbook/utils/wheel_util.dart';
 import 'package:provider/provider.dart';
 
-class AddEntryPageView extends StatefulWidget {
-  AddEntryPageView({Key key}) : super(key: key);
-  _AddEntryPageView createState() => _AddEntryPageView();
+class AddEntryScreen extends StatefulWidget {
+  AddEntryScreen({Key key}) : super(key: key);
+  _AddEntryScreen createState() => _AddEntryScreen();
 }
 
-class _AddEntryPageView extends State<AddEntryPageView> {
+class _AddEntryScreen extends State<AddEntryScreen> {
   PageController _pageController;
   FirebaseUser _currentUser;
   TimeUtil _timeUtil;

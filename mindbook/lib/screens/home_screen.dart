@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mindbook/models/entry.dart';
 import 'package:mindbook/screens/add_entry_screen.dart';
+import 'package:mindbook/screens/view_entry_screen.dart';
 import 'package:mindbook/services/auth_service.dart';
 import 'package:mindbook/utils/time_util.dart';
 import 'package:provider/provider.dart';
@@ -240,7 +241,7 @@ class _HomeScreen extends State<HomeScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => AddEntryPageView(),
+                  builder: (context) => AddEntryScreen(),
                   fullscreenDialog: true),
             );
           }),
@@ -263,13 +264,18 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
   final entry = Entry.fromSnapshot(data);
 
   return ListTile(
-    onTap: () async => await Firestore.instance
-        .runTransaction((transaction) => transaction.delete(entry.reference)),
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ViewEntryScreen(entry: entry), fullscreenDialog: false),
+      );
+    },
     leading: Text(toEmotion(entry.emotion), style: TextStyle(fontSize: 42)),
     title: Text(entry.title, style: TextStyle(fontWeight: FontWeight.bold)),
     subtitle: Row(
       children: <Widget>[
-        Text(getTime(entry.timestamp.toDate()),
+        Text(DateFormat('jm').format(entry.timestamp.toDate()),
             style: TextStyle(fontWeight: FontWeight.bold)),
         Text(' - '),
         Expanded(
@@ -283,12 +289,6 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
 String toEmotion(int emotionNum) {
   final emotions = ['😞', '😓', '🙂', '😌', '🤩'];
   return emotions[emotionNum];
-}
-
-String getTime(DateTime dateTime) {
-  // TODO: add shared pref option for date time format (24/12 hour)
-  var formatter = new DateFormat('jm');
-  return formatter.format(dateTime);
 }
 
 Widget showEntries(BuildContext context, bool _desc, TimeUtil _timeUtil) {

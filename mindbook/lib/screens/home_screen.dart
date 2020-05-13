@@ -40,20 +40,34 @@ class _HomeScreen extends State<HomeScreen> {
         appBar: AppBar(
           actions: <Widget>[
             IconButton(
+                icon: Icon(Icons.chevron_left),
+                onPressed: () {
+                  setState(() {
+                    _timeUtil.setDateTimePrevious();
+                  });
+                }),
+            IconButton(
+              icon: Icon(Icons.calendar_today),
+              onPressed: () {
+                setState(() {
+                  _timeUtil.setDateTime(DateTime.now());
+                });
+              },
+            ),
+            IconButton(
+                icon: Icon(Icons.chevron_right),
+                onPressed: () {
+                  setState(() {
+                    _timeUtil.setDateTimeNext();
+                  });
+                }),
+            IconButton(
                 icon: Icon(Icons.sort),
                 onPressed: () {
                   setState(() {
                     _desc = !_desc;
                   });
                 }),
-            IconButton(
-              icon: Icon(Icons.today),
-              onPressed: () {
-                setState(() {
-                  _timeUtil.setDateTime(DateTime.now());
-                });
-              },
-            )
           ],
           title: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -88,7 +102,7 @@ class _HomeScreen extends State<HomeScreen> {
                         )
                     ],
                   ),
-                  SizedBox(width: 2.0),
+                  SizedBox(width: 4.0),
                   Icon(Icons.arrow_drop_down)
                 ]),
               ),

@@ -34,6 +34,14 @@ class TimeUtil {
     }
   }
 
+  void setDateTimePrevious() {
+    _dateTime = DateTime(_dateTime.year, _dateTime.month, _dateTime.day - 1);
+  }
+
+  void setDateTimeNext() {
+    _dateTime = DateTime(_dateTime.year, _dateTime.month, _dateTime.day + 1);
+  }
+
   DateTime getDateTime() {
     return _dateTime;
   }

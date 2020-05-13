@@ -133,9 +133,15 @@ class _AddEntryPageView extends State<AddEntryPageView> {
                             child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
-                                  Text(this
-                                      ._timeUtil
-                                      .getDateTimeAsString('yMMMMd')),
+                                  Column(
+                                    children: <Widget>[
+                                      Text(this
+                                          ._timeUtil
+                                          .getDateTimeAsString('yMMMMd')),
+                                      if (_timeUtil.isToday())
+                                      Text('Today')
+                                    ],
+                                  ),
                                   SizedBox(width: 8.0),
                                   Icon(Icons.arrow_drop_down)
                                 ]),
@@ -641,11 +647,16 @@ class _AddEntryPageView extends State<AddEntryPageView> {
                               Map<String, dynamic> submitMap = {
                                 'title': _entryTitle.text,
                                 'content': _entryContent.text,
-                                'timestamp': Timestamp.fromDate(_timeUtil.getDateTime()),
+                                'timestamp':
+                                    Timestamp.fromDate(_timeUtil.getDateTime()),
                                 'emotion': _emotionValue.toInt(),
-                                'tags': _tags.where((element) => element.getSelected() == true).map((e) => e.getTag()).toList(),
+                                'tags': _tags
+                                    .where((element) =>
+                                        element.getSelected() == true)
+                                    .map((e) => e.getTag())
+                                    .toList(),
                                 'wheelEmotions': _tertiaryChoices
-                                };
+                              };
                               Entry submitEntry = Entry.fromMap(submitMap);
                               DatabaseService db =
                                   DatabaseService(_currentUser.uid);

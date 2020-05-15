@@ -19,10 +19,12 @@ class _HomeScreen extends State<HomeScreen> {
   FirebaseUser _currentUser;
   bool _desc;
   TimeUtil _timeUtil;
+  PageController _pageController;
 
   @override
   void initState() {
     super.initState();
+    _pageController = PageController(initialPage: 0);
     _desc = true;
     _authService = AuthService();
     _timeUtil = TimeUtil(DateTime.now());
@@ -39,79 +41,27 @@ class _HomeScreen extends State<HomeScreen> {
     return Scaffold(
       body: Scaffold(
         appBar: AppBar(
-          actions: <Widget>[
-            IconButton(
-                icon: Icon(Icons.chevron_left),
-                onPressed: () {
-                  setState(() {
-                    _timeUtil.setDateTimePrevious();
-                  });
-                }),
-            IconButton(
-              icon: Icon(Icons.calendar_today),
-              onPressed: () {
-                setState(() {
-                  _timeUtil.setDateTime(DateTime.now());
-                });
-              },
-            ),
-            IconButton(
-                icon: Icon(Icons.chevron_right),
-                onPressed: () {
-                  setState(() {
-                    _timeUtil.setDateTimeNext();
-                  });
-                }),
-            IconButton(
-                icon: Icon(Icons.sort),
-                onPressed: () {
-                  setState(() {
-                    _desc = !_desc;
-                  });
-                }),
-          ],
+          actions: _pageController.hasClients
+              ? getActions(_pageController.page.round())
+              : <Widget>[],
           title: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              GestureDetector(
-                onTap: () async {
-                  DateTime _dateTime = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime(1990),
-                    lastDate: DateTime(2100),
-                    builder: (BuildContext context, Widget child) {
-                      return Theme(
-                        data: Theme.of(context),
-                        child: child,
-                      );
-                    },
-                  );
-                  setState(() {
-                    _timeUtil.setDateTime(_dateTime);
-                  });
-                },
-                child: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                  Column(
-                    children: <Widget>[
-                      Text(_timeUtil.getDateTimeAsString('MMMMd')),
-                      if (_timeUtil.isToday())
-                        Text(
-                          'Today',
-                          style: TextStyle(fontSize: 14.0),
-                        )
-                    ],
-                  ),
-                  SizedBox(width: 4.0),
-                  Icon(Icons.arrow_drop_down)
-                ]),
-              ),
-            ],
+            children: _pageController.hasClients
+                ? getTitle(_pageController.page.round())
+                : <Widget>[],
           ),
           centerTitle: false,
         ),
-        body: showEntries(context, _desc, _timeUtil),
+        // body: showEntries(context, _desc, _timeUtil),
+        body: PageView(
+            controller: _pageController,
+            physics: NeverScrollableScrollPhysics(),
+            children: <Widget>[
+              showEntries(context, _desc, _timeUtil),
+              Text('Progress'),
+              Text('Help')
+            ]),
       ),
       bottomNavigationBar: BottomAppBar(
           child: new Row(
@@ -138,7 +88,7 @@ class _HomeScreen extends State<HomeScreen> {
                               ),
                               title: Text(_currentUser.displayName),
                               subtitle: Text(_currentUser.email),
-                              onTap: () {},
+                              onTap: null,
                             ),
                           if (_currentUser.displayName == null)
                             ListTile(
@@ -147,7 +97,7 @@ class _HomeScreen extends State<HomeScreen> {
                                 height: double.infinity,
                               ),
                               title: Text('Anonymous'),
-                              onTap: () {},
+                              onTap: null,
                             ),
                           Divider(),
                           ListTile(
@@ -156,8 +106,13 @@ class _HomeScreen extends State<HomeScreen> {
                               height: double.infinity,
                             ),
                             title: Text('My Entries'),
-                            onTap: () {},
-                            selected: true,
+                            onTap: () {
+                              setState(() {
+                                _pageController.jumpToPage(0);
+                              });
+                              Navigator.pop(context);
+                            },
+                            selected: _pageController.page.round() == 0,
                           ),
                           ListTile(
                             leading: Container(
@@ -165,7 +120,13 @@ class _HomeScreen extends State<HomeScreen> {
                               height: double.infinity,
                             ),
                             title: Text('Progress'),
-                            onTap: () {},
+                            onTap: () {
+                              setState(() {
+                                _pageController.jumpToPage(1);
+                              });
+                              Navigator.pop(context);
+                            },
+                            selected: _pageController.page.round() == 1,
                           ),
                           Divider(),
                           ListTile(
@@ -174,7 +135,13 @@ class _HomeScreen extends State<HomeScreen> {
                               height: double.infinity,
                             ),
                             title: Text('Help and feedback'),
-                            onTap: () {},
+                            onTap: () {
+                              setState(() {
+                                _pageController.jumpToPage(2);
+                              });
+                              Navigator.pop(context);
+                            },
+                            selected: _pageController.page.round() == 2,
                           ),
                         ],
                       ),
@@ -246,6 +213,100 @@ class _HomeScreen extends State<HomeScreen> {
             );
           }),
     );
+  }
+
+  List<Widget> getActions(int page) {
+    switch (page) {
+      case 0:
+        return <Widget>[
+          IconButton(
+              icon: Icon(Icons.chevron_left),
+              onPressed: () {
+                setState(() {
+                  _timeUtil.setDateTimePrevious();
+                });
+              }),
+          IconButton(
+            icon: Icon(Icons.calendar_today),
+            onPressed: () {
+              setState(() {
+                _timeUtil.setDateTime(DateTime.now());
+              });
+            },
+          ),
+          IconButton(
+              icon: Icon(Icons.chevron_right),
+              onPressed: () {
+                setState(() {
+                  _timeUtil.setDateTimeNext();
+                });
+              }),
+          IconButton(
+              icon: Icon(Icons.sort),
+              onPressed: () {
+                setState(() {
+                  _desc = !_desc;
+                });
+              }),
+        ];
+      case 1:
+        return <Widget>[];
+      case 2:
+        return <Widget>[];
+      default:
+        return <Widget>[];
+    }
+  }
+
+  List<Widget> getTitle(int page) {
+    switch (page) {
+      case 0:
+        return <Widget>[
+          GestureDetector(
+            onTap: () async {
+              DateTime _dateTime = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime(1990),
+                lastDate: DateTime(2100),
+                builder: (BuildContext context, Widget child) {
+                  return Theme(
+                    data: Theme.of(context),
+                    child: child,
+                  );
+                },
+              );
+              setState(() {
+                _timeUtil.setDateTime(_dateTime);
+              });
+            },
+            child: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
+              Column(
+                children: <Widget>[
+                  Text(_timeUtil.getDateTimeAsString('MMMMd')),
+                  if (_timeUtil.isToday())
+                    Text(
+                      'Today',
+                      style: TextStyle(fontSize: 14.0),
+                    )
+                ],
+              ),
+              SizedBox(width: 4.0),
+              Icon(Icons.arrow_drop_down)
+            ]),
+          ),
+        ];
+      case 1:
+        return <Widget>[
+          Text('Progress')
+        ];
+      case 2:
+        return <Widget>[
+          Text('Help and feedback')
+        ];
+      default:
+        return <Widget>[];
+    }
   }
 }
 

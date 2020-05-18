@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mindbook/models/entry.dart';
 import 'package:mindbook/screens/add_entry_screen.dart';
+import 'package:mindbook/screens/calendar/calendar.dart';
 import 'package:mindbook/screens/view_entry_screen.dart';
 import 'package:mindbook/services/auth_service.dart';
 import 'package:mindbook/utils/time_util.dart';
@@ -20,11 +21,22 @@ class _HomeScreen extends State<HomeScreen> {
   bool _desc;
   TimeUtil _timeUtil;
   PageController _pageController;
+  int _currentPage;
+  bool _numbers;
 
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(initialPage: 0);
+    _currentPage = 0;
+    _pageController = PageController()
+      ..addListener(() {
+        int _page = _pageController.page.round();
+        if (_currentPage != _page) {
+          setState(() {});
+        }
+        _currentPage = _page;
+      });
+    _numbers = true;
     _desc = true;
     _authService = AuthService();
     _timeUtil = TimeUtil(DateTime.now());
@@ -39,180 +51,191 @@ class _HomeScreen extends State<HomeScreen> {
   Widget build(BuildContext context) {
     _currentUser = Provider.of<FirebaseUser>(context);
     return Scaffold(
-      body: Scaffold(
-        appBar: AppBar(
-          actions: _pageController.hasClients
-              ? getActions(_pageController.page.round())
-              : <Widget>[],
-          title: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: _pageController.hasClients
-                ? getTitle(_pageController.page.round())
-                : <Widget>[],
+        body: Scaffold(
+          appBar: AppBar(
+            actions: getActions(_currentPage),
+            title: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: getTitle(_currentPage)),
+            centerTitle: false,
           ),
-          centerTitle: false,
+          body: PageView(
+              controller: _pageController,
+              physics: NeverScrollableScrollPhysics(),
+              children: <Widget>[
+                showEntries(context, _desc, _timeUtil),
+                Calendar(showNumbers: _numbers, currentUser: _currentUser),
+                Text('Progress'),
+                Text('Help')
+              ]),
         ),
-        // body: showEntries(context, _desc, _timeUtil),
-        body: PageView(
-            controller: _pageController,
-            physics: NeverScrollableScrollPhysics(),
-            children: <Widget>[
-              showEntries(context, _desc, _timeUtil),
-              Text('Progress'),
-              Text('Help')
-            ]),
-      ),
-      bottomNavigationBar: BottomAppBar(
-          child: new Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          IconButton(
-            icon: Icon(Icons.menu),
-            onPressed: () {
-              showModalBottomSheet(
-                  shape: new RoundedRectangleBorder(
-                    borderRadius: new BorderRadius.circular(8.0),
-                  ),
-                  context: context,
-                  builder: (context) {
-                    return SafeArea(
-                      child: new Wrap(
-                        children: <Widget>[
-                          if (_currentUser.displayName != null)
+        bottomNavigationBar: BottomAppBar(
+            child: new Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: () {
+                showModalBottomSheet(
+                    shape: new RoundedRectangleBorder(
+                      borderRadius: new BorderRadius.circular(8.0),
+                    ),
+                    context: context,
+                    builder: (context) {
+                      return SafeArea(
+                        child: new Wrap(
+                          children: <Widget>[
+                            if (_currentUser.displayName != null)
+                              ListTile(
+                                leading: Container(
+                                  child: Icon(Icons.person),
+                                  height: double.infinity,
+                                ),
+                                title: Text(_currentUser.displayName),
+                                subtitle: Text(_currentUser.email),
+                                onTap: null,
+                              ),
+                            if (_currentUser.displayName == null)
+                              ListTile(
+                                leading: Container(
+                                  child: Icon(Icons.person),
+                                  height: double.infinity,
+                                ),
+                                title: Text('Anonymous'),
+                                onTap: null,
+                              ),
+                            Divider(),
                             ListTile(
                               leading: Container(
-                                child: Icon(Icons.person),
+                                child: Icon(Icons.view_list),
                                 height: double.infinity,
                               ),
-                              title: Text(_currentUser.displayName),
-                              subtitle: Text(_currentUser.email),
-                              onTap: null,
+                              title: Text('My Entries'),
+                              onTap: () {
+                                setState(() {
+                                  _pageController.jumpToPage(0);
+                                });
+                                Navigator.pop(context);
+                              },
+                              selected: _pageController.page.round() == 0,
                             ),
-                          if (_currentUser.displayName == null)
                             ListTile(
                               leading: Container(
-                                child: Icon(Icons.person),
+                                child: Icon(Icons.calendar_today),
                                 height: double.infinity,
                               ),
-                              title: Text('Anonymous'),
-                              onTap: null,
+                              title: Text('Overview'),
+                              onTap: () {
+                                setState(() {
+                                  _pageController.jumpToPage(1);
+                                });
+                                Navigator.pop(context);
+                              },
+                              selected: _pageController.page.round() == 1,
                             ),
-                          Divider(),
-                          ListTile(
-                            leading: Container(
-                              child: Icon(Icons.view_list),
-                              height: double.infinity,
+                            ListTile(
+                              leading: Container(
+                                child: Icon(Icons.equalizer),
+                                height: double.infinity,
+                              ),
+                              title: Text('Progress'),
+                              onTap: () {
+                                setState(() {
+                                  _pageController.jumpToPage(2);
+                                });
+                                Navigator.pop(context);
+                              },
+                              selected: _pageController.page.round() == 2,
                             ),
-                            title: Text('My Entries'),
-                            onTap: () {
-                              setState(() {
-                                _pageController.jumpToPage(0);
-                              });
-                              Navigator.pop(context);
-                            },
-                            selected: _pageController.page.round() == 0,
-                          ),
-                          ListTile(
-                            leading: Container(
-                              child: Icon(Icons.equalizer),
-                              height: double.infinity,
+                            Divider(),
+                            ListTile(
+                              leading: Container(
+                                child: Icon(Icons.info),
+                                height: double.infinity,
+                              ),
+                              title: Text('Help and feedback'),
+                              onTap: () {
+                                setState(() {
+                                  _pageController.jumpToPage(3);
+                                });
+                                Navigator.pop(context);
+                              },
+                              selected: _pageController.page.round() == 3,
                             ),
-                            title: Text('Progress'),
-                            onTap: () {
-                              setState(() {
-                                _pageController.jumpToPage(1);
-                              });
-                              Navigator.pop(context);
-                            },
-                            selected: _pageController.page.round() == 1,
-                          ),
-                          Divider(),
-                          ListTile(
-                            leading: Container(
-                              child: Icon(Icons.info),
-                              height: double.infinity,
+                          ],
+                        ),
+                      );
+                    });
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: () {
+                showModalBottomSheet(
+                    shape: new RoundedRectangleBorder(
+                      borderRadius: new BorderRadius.circular(8.0),
+                    ),
+                    context: context,
+                    builder: (context) {
+                      return SafeArea(
+                        child: new Wrap(
+                          children: <Widget>[
+                            ListTile(
+                              leading: Container(
+                                child: Icon(Icons.update),
+                                height: double.infinity,
+                              ),
+                              title: Text('Time format'),
+                              subtitle: Text('12-hour clock'),
+                              // TODO: show dialog to change time format
+                              onTap: () {},
                             ),
-                            title: Text('Help and feedback'),
-                            onTap: () {
-                              setState(() {
-                                _pageController.jumpToPage(2);
-                              });
-                              Navigator.pop(context);
-                            },
-                            selected: _pageController.page.round() == 2,
-                          ),
-                        ],
-                      ),
-                    );
-                  });
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.settings),
-            onPressed: () {
-              showModalBottomSheet(
-                  shape: new RoundedRectangleBorder(
-                    borderRadius: new BorderRadius.circular(8.0),
-                  ),
-                  context: context,
-                  builder: (context) {
-                    return SafeArea(
-                      child: new Wrap(
-                        children: <Widget>[
-                          ListTile(
-                            leading: Container(
-                              child: Icon(Icons.update),
-                              height: double.infinity,
+                            ListTile(
+                              leading: Container(
+                                child: Icon(Icons.invert_colors),
+                                height: double.infinity,
+                              ),
+                              title: Text('Theme'),
+                              subtitle: Text('Light'),
+                              // TODO: show dialog to change theme
+                              onTap: () {},
                             ),
-                            title: Text('Time format'),
-                            subtitle: Text('12-hour clock'),
-                            // TODO: show dialog to change time format
-                            onTap: () {},
-                          ),
-                          ListTile(
-                            leading: Container(
-                              child: Icon(Icons.invert_colors),
-                              height: double.infinity,
-                            ),
-                            title: Text('Theme'),
-                            subtitle: Text('Light'),
-                            // TODO: show dialog to change theme
-                            onTap: () {},
-                          ),
-                          ListTile(
-                            leading: Container(
-                              child: Icon(Icons.exit_to_app),
-                              height: double.infinity,
-                            ),
-                            title: Text('Sign out'),
-                            onTap: () async {
-                              await _authService.signOut();
-                              Navigator.pop(context);
-                            },
-                          )
-                        ],
-                      ),
-                    );
-                  });
-            },
-          )
-        ],
-      )),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: FloatingActionButton.extended(
-          icon: const Icon(Icons.add),
-          label: const Text('Add entry'),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => AddEntryScreen(),
-                  fullscreenDialog: true),
-            );
-          }),
-    );
+                            ListTile(
+                              leading: Container(
+                                child: Icon(Icons.exit_to_app),
+                                height: double.infinity,
+                              ),
+                              title: Text('Sign out'),
+                              onTap: () async {
+                                await _authService.signOut();
+                                Navigator.pop(context);
+                              },
+                            )
+                          ],
+                        ),
+                      );
+                    });
+              },
+            )
+          ],
+        )),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: Visibility(
+          visible: _currentPage == 0,
+          child: FloatingActionButton.extended(
+              icon: const Icon(Icons.add),
+              label: const Text('Add entry'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => AddEntryScreen(),
+                      fullscreenDialog: true),
+                );
+              }),
+        ));
   }
 
   List<Widget> getActions(int page) {
@@ -250,8 +273,19 @@ class _HomeScreen extends State<HomeScreen> {
               }),
         ];
       case 1:
-        return <Widget>[];
+        return <Widget>[
+          IconButton(
+              icon: Icon(Icons.looks),
+              onPressed: () {
+                setState(() {
+                  _numbers = !_numbers;
+                });
+              }),
+          IconButton(icon: Icon(Icons.info_outline), onPressed: () {}),
+        ];
       case 2:
+        return <Widget>[];
+      case 3:
         return <Widget>[];
       default:
         return <Widget>[];
@@ -297,13 +331,11 @@ class _HomeScreen extends State<HomeScreen> {
           ),
         ];
       case 1:
-        return <Widget>[
-          Text('Progress')
-        ];
+        return <Widget>[Text('Overview')];
       case 2:
-        return <Widget>[
-          Text('Help and feedback')
-        ];
+        return <Widget>[Text('Progress')];
+      case 3:
+        return <Widget>[Text('Help and feedback')];
       default:
         return <Widget>[];
     }
@@ -333,7 +365,7 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
             fullscreenDialog: false),
       );
     },
-    leading: Text(toEmotion(entry.emotion), style: TextStyle(fontSize: 42)),
+    leading: Text(toEmotion(entry.emotion - 1), style: TextStyle(fontSize: 42)),
     title: Text(entry.title,
         style: TextStyle(fontWeight: FontWeight.bold),
         overflow: TextOverflow.ellipsis,

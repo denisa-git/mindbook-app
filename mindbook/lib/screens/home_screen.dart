@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:mindbook/models/entry.dart';
 import 'package:mindbook/screens/add_entry_screen.dart';
 import 'package:mindbook/screens/calendar/calendar.dart';
+import 'package:mindbook/screens/charts/chart.dart';
 import 'package:mindbook/screens/view_entry_screen.dart';
 import 'package:mindbook/services/auth_service.dart';
 import 'package:mindbook/utils/time_util.dart';
@@ -66,7 +67,7 @@ class _HomeScreen extends State<HomeScreen> {
               children: <Widget>[
                 showEntries(context, _desc, _timeUtil),
                 Calendar(showNumbers: _numbers, currentUser: _currentUser),
-                Text('Progress'),
+                Chart(currentUser: _currentUser),
                 Text('Help')
               ]),
         ),

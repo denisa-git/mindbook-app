@@ -54,7 +54,7 @@ class MonthWidget extends StatelessWidget {
     List<Entry> entries =
         results.documents.map((data) => Entry.fromSnapshot(data)).toList();
     double average = 0;
-    print(entries.length);
+
     if (entries.length > 0) {
       for (Entry item in entries) {
         average = average + item.emotion;
@@ -153,9 +153,13 @@ class MonthWidget extends StatelessWidget {
                     return Row(
                         children: List.generate(monthRows[row].length, (day) {
                       return FutureBuilder(
-                          future: monthRows[row][day] == ''? null : getDayColor(DateTime.utc(year, month, int.parse(monthRows[row][day]))),
+                          future: monthRows[row][day] == ''
+                              ? null
+                              : getDayColor(DateTime.utc(
+                                  year, month, int.parse(monthRows[row][day]))),
                           initialData: Colors.transparent,
-                          builder: (BuildContext context, AsyncSnapshot<Color> _color) {
+                          builder: (BuildContext context,
+                              AsyncSnapshot<Color> _color) {
                             return Container(
                               width: 18,
                               height: 18,
@@ -166,7 +170,8 @@ class MonthWidget extends StatelessWidget {
                                 child: Text(
                                   monthRows[row][day],
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(fontSize: 12),
+                                  style: TextStyle(fontSize: 12,
+                                  ),
                                 ),
                               ),
                             );

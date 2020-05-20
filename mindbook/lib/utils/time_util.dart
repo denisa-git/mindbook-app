@@ -22,9 +22,15 @@ class TimeUtil {
     return _dateTimeFormatted;
   }
 
+  DateTime getDateTimeFrom(int year) {
+    DateTime _dateTimeFormatted =
+        DateTime(_dateTime.year - year, _dateTime.month, _dateTime.day);
+    return _dateTimeFormatted;
+  }
+
   DateTime getTodayEndDateTime() {
     DateTime _dateTimeFormatted =
-        DateTime(_dateTime.year, _dateTime.month, _dateTime.day + 1);
+        DateTime(_dateTime.year, _dateTime.month, _dateTime.day, 23, 59, 59);
     return _dateTimeFormatted;
   }
 

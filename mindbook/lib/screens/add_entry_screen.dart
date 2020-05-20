@@ -645,15 +645,14 @@ class _AddEntryScreen extends State<AddEntryScreen> {
                           FlatButton(
                             onPressed: () {
                               // Submit
-                              DateTime today = DateTime.now();
-                              DateTime start = DateTime.utc(2020, 1, 1);
+                              DateTime today = DateTime.utc(2018, 1, 1);
+                              DateTime start = DateTime.utc(2017, 1, 1);
                               List<DateTime> days = List<DateTime>.generate(
                                   today.difference(start).inDays,
                                   (index) => start.add(Duration(days: index)));
                               for (DateTime day in days) {
                                 final _random = new Random();
                                 int next(int min, int max) => min + _random.nextInt(max - min);
-                                print(day);
                                 Map<String, dynamic> submitMap = {
                                   'title': _entryTitle.text,
                                   'content': _entryContent.text,

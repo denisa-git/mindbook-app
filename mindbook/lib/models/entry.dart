@@ -30,5 +30,5 @@ class Entry {
   };
 
   @override
-  String toString() => "Entry<$title>";
+  String toString() => "Entry<$title:$content:$emotion:$reference>";
 }

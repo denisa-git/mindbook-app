@@ -1,11 +1,14 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:mindbook/models/entry.dart';
 import 'package:http/http.dart' as http;
 import 'package:mindbook/models/sentiment.dart';
+import 'package:mindbook/services/database_service.dart';
+import 'package:provider/provider.dart';
 
 class ViewEntryScreen extends StatefulWidget {
   final Entry entry;
@@ -19,6 +22,10 @@ class _ViewEntryScreen extends State<ViewEntryScreen> {
   ScrollController _scrollController;
   bool _scrollIdle;
   Future<Sentiment> futureSentiment;
+  FirebaseUser _currentUser;
+
+  TextEditingController _entryTitle;
+  TextEditingController _entryContent;
 
   _ViewEntryScreen({@required this.entry});
 
@@ -36,6 +43,8 @@ class _ViewEntryScreen extends State<ViewEntryScreen> {
         _scrollIdle = _idle;
       });
     futureSentiment = fetchSentiment();
+    _entryTitle = new TextEditingController()..text = entry.title;
+    _entryContent = new TextEditingController()..text = entry.content;
     super.initState();
   }
 
@@ -73,6 +82,7 @@ class _ViewEntryScreen extends State<ViewEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    _currentUser = Provider.of<FirebaseUser>(context);
     return Scaffold(
       appBar: AppBar(
         actions: <Widget>[
@@ -106,11 +116,13 @@ class _ViewEntryScreen extends State<ViewEntryScreen> {
                           width: 16,
                         ),
                         Flexible(
-                            child: Text(entry.title,
-                                style: TextStyle(
-                                    fontSize: 28, fontWeight: FontWeight.bold),
-                                overflow: TextOverflow.visible,
-                                softWrap: true)),
+                          child: TextField(
+                            controller: _entryTitle,
+                            readOnly: !editState,
+                            decoration: InputDecoration.collapsed(
+                                hintText: 'Entry title'),
+                          ),
+                        ),
                       ],
                     ),
                     Divider(),
@@ -141,7 +153,14 @@ class _ViewEntryScreen extends State<ViewEntryScreen> {
                       ],
                     ),
                     Divider(),
-                    Text(entry.content),
+                    TextField(
+                      maxLines: null,
+                      keyboardType: TextInputType.multiline,
+                      controller: _entryContent,
+                      readOnly: !editState,
+                      decoration:
+                          InputDecoration.collapsed(hintText: 'Entry content'),
+                    ),
                     Divider(),
                     Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -177,6 +196,14 @@ class _ViewEntryScreen extends State<ViewEntryScreen> {
             ? FloatingActionButton.extended(
                 onPressed: () {
                   setState(() {
+                    if (editState) {
+                      DatabaseService db = DatabaseService(_currentUser.uid);
+                      Map<String, dynamic> thisMap = {
+                        'title': _entryTitle.text,
+                        'content': _entryContent.text
+                      };
+                      db.updateEntry(entry, thisMap);
+                    }
                     editState = !editState;
                   });
                 },

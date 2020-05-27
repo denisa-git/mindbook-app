@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:mindbook/models/entry.dart';
+import 'package:http/http.dart' as http;
+import 'package:mindbook/models/sentiment.dart';
 
 class ViewEntryScreen extends StatefulWidget {
   final Entry entry;
@@ -14,6 +18,7 @@ class _ViewEntryScreen extends State<ViewEntryScreen> {
   bool editState;
   ScrollController _scrollController;
   bool _scrollIdle;
+  Future<Sentiment> futureSentiment;
 
   _ViewEntryScreen({@required this.entry});
 
@@ -30,6 +35,7 @@ class _ViewEntryScreen extends State<ViewEntryScreen> {
         }
         _scrollIdle = _idle;
       });
+    futureSentiment = fetchSentiment();
     super.initState();
   }
 
@@ -37,6 +43,32 @@ class _ViewEntryScreen extends State<ViewEntryScreen> {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  Future<Sentiment> fetchSentiment() async {
+    if (entry.content == "") {
+      Map<String, String> emptyMap = {
+        "sentiment": 'Missing content',
+      };
+
+      return Sentiment.fromJson(emptyMap);
+    }
+
+    final response = await http.post(
+      'https://net1.dev/analyse',
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'text': entry.content,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return Sentiment.fromJson(json.decode(response.body));
+    } else {
+      throw Exception('Failed to load sentiment');
+    }
   }
 
   @override
@@ -68,7 +100,7 @@ class _ViewEntryScreen extends State<ViewEntryScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        Text(toEmotion(entry.emotion),
+                        Text(toEmotion(entry.emotion - 1),
                             style: TextStyle(fontSize: 42)),
                         SizedBox(
                           width: 16,
@@ -117,12 +149,22 @@ class _ViewEntryScreen extends State<ViewEntryScreen> {
                           Icon(Icons.info_outline),
                           SizedBox(width: 8),
                           Text('Sentiment analysis of entry:'),
-                          SizedBox(width: 8),
-                          // get SA result
-                          if (false)
-                            Text('Analysing...')
-                          else
-                            Text('get data')
+                          SizedBox(width: 4),
+                          FutureBuilder<Sentiment>(
+                              future: futureSentiment,
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  return Text(
+                                      snapshot.data.sentiment.toUpperCase());
+                                } else if (snapshot.hasError) {
+                                  return Text("${snapshot.error}");
+                                }
+                                return SizedBox(
+                                  width: 12,
+                                  height: 12,
+                                  child: CircularProgressIndicator(),
+                                );
+                              })
                         ]),
                     SizedBox(height: 16)
                   ],

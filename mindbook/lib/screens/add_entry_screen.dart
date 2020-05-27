@@ -645,50 +645,50 @@ class _AddEntryScreen extends State<AddEntryScreen> {
                           FlatButton(
                             onPressed: () {
                               // Submit
-                              DateTime today = DateTime.utc(2018, 1, 1);
-                              DateTime start = DateTime.utc(2017, 1, 1);
-                              List<DateTime> days = List<DateTime>.generate(
-                                  today.difference(start).inDays,
-                                  (index) => start.add(Duration(days: index)));
-                              for (DateTime day in days) {
-                                final _random = new Random();
-                                int next(int min, int max) => min + _random.nextInt(max - min);
-                                Map<String, dynamic> submitMap = {
-                                  'title': _entryTitle.text,
-                                  'content': _entryContent.text,
-                                  'timestamp': Timestamp.fromDate(day),
-                                  'emotion': next(1, 5),
-                                  'tags': _tags
-                                      .where((element) =>
-                                          element.getSelected() == true)
-                                      .map((e) => e.getTag())
-                                      .toList(),
-                                  'wheelEmotions': _tertiaryChoices == null
-                                      ? []
-                                      : _tertiaryChoices
-                                };
-                                Entry submitEntry = Entry.fromMap(submitMap);
-                                DatabaseService db =
-                                    DatabaseService(_currentUser.uid);
-                                db.createEntry(submitEntry);
-                              }
-                              // Map<String, dynamic> submitMap = {
-                              //   'title': _entryTitle.text,
-                              //   'content': _entryContent.text,
-                              //   'timestamp':
-                              //       Timestamp.fromDate(_timeUtil.getDateTime()),
-                              //   'emotion': _emotionValue.toInt() + 1,
-                              //   'tags': _tags
-                              //       .where((element) =>
-                              //           element.getSelected() == true)
-                              //       .map((e) => e.getTag())
-                              //       .toList(),
-                              //   'wheelEmotions': _tertiaryChoices == null? []:_tertiaryChoices
-                              // };
-                              // Entry submitEntry = Entry.fromMap(submitMap);
-                              // DatabaseService db =
-                              //     DatabaseService(_currentUser.uid);
-                              // db.createEntry(submitEntry);
+                              // DateTime today = DateTime.utc(2018, 1, 1);
+                              // DateTime start = DateTime.utc(2017, 1, 1);
+                              // List<DateTime> days = List<DateTime>.generate(
+                              //     today.difference(start).inDays,
+                              //     (index) => start.add(Duration(days: index)));
+                              // for (DateTime day in days) {
+                              //   final _random = new Random();
+                              //   int next(int min, int max) => min + _random.nextInt(max - min);
+                              //   Map<String, dynamic> submitMap = {
+                              //     'title': _entryTitle.text,
+                              //     'content': _entryContent.text,
+                              //     'timestamp': Timestamp.fromDate(day),
+                              //     'emotion': next(1, 5),
+                              //     'tags': _tags
+                              //         .where((element) =>
+                              //             element.getSelected() == true)
+                              //         .map((e) => e.getTag())
+                              //         .toList(),
+                              //     'wheelEmotions': _tertiaryChoices == null
+                              //         ? []
+                              //         : _tertiaryChoices
+                              //   };
+                              //   Entry submitEntry = Entry.fromMap(submitMap);
+                              //   DatabaseService db =
+                              //       DatabaseService(_currentUser.uid);
+                              //   db.createEntry(submitEntry);
+                              // }
+                              Map<String, dynamic> submitMap = {
+                                'title': _entryTitle.text,
+                                'content': _entryContent.text,
+                                'timestamp':
+                                    Timestamp.fromDate(_timeUtil.getDateTime()),
+                                'emotion': _emotionValue.toInt() + 1,
+                                'tags': _tags
+                                    .where((element) =>
+                                        element.getSelected() == true)
+                                    .map((e) => e.getTag())
+                                    .toList(),
+                                'wheelEmotions': _tertiaryChoices == null? []:_tertiaryChoices
+                              };
+                              Entry submitEntry = Entry.fromMap(submitMap);
+                              DatabaseService db =
+                                  DatabaseService(_currentUser.uid);
+                              db.createEntry(submitEntry);
                               // Display result
                               Navigator.pop(context);
                             },

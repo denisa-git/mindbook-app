@@ -77,6 +77,242 @@ class _Chart extends State<Chart> {
     }
   }
 
+  Future<List<charts.Series<Linear, int>>> _getMonthlyAverage(
+      TimeUtil _timeUtil, int offset) async {
+    List<charts.Series<Linear, int>> _seriesDataWeekdays =
+        List<charts.Series<Linear, int>>();
+    Firestore firestore = Firestore.instance;
+
+    QuerySnapshot resultsAverage = await firestore
+        .collection('user')
+        .document(widget.currentUser.uid)
+        .collection('entry')
+        .where('timestamp',
+            isGreaterThanOrEqualTo: _timeUtil.getDateTimeFrom(offset))
+        .where('timestamp',
+            isLessThanOrEqualTo: _timeUtil.getTodayEndDateTime())
+        .getDocuments();
+
+    QuerySnapshot resultsThisYear = await firestore
+        .collection('user')
+        .document(widget.currentUser.uid)
+        .collection('entry')
+        .where('timestamp',
+            isGreaterThanOrEqualTo: _timeUtil.getStartOfYear())
+        .where('timestamp',
+            isLessThanOrEqualTo: _timeUtil.getTodayEndDateTime())
+        .getDocuments();
+
+    List<Entry> entriesAverage = resultsAverage.documents
+        .map((data) => Entry.fromSnapshot(data))
+        .toList();
+
+    List<Entry> entriesThisYear = resultsThisYear.documents
+        .map((data) => Entry.fromSnapshot(data))
+        .toList();
+
+    List<int> janAverageList = entriesAverage
+        .where(
+            (element) => element.timestamp.toDate().month == DateTime.january)
+        .map((e) => e.emotion)
+        .toList();
+
+    List<int> febAverageList = entriesAverage
+        .where(
+            (element) => element.timestamp.toDate().month == DateTime.february)
+        .map((e) => e.emotion)
+        .toList();
+
+    List<int> marAverageList = entriesAverage
+        .where((element) => element.timestamp.toDate().month == DateTime.march)
+        .map((e) => e.emotion)
+        .toList();
+
+    List<int> aprAverageList = entriesAverage
+        .where((element) => element.timestamp.toDate().month == DateTime.april)
+        .map((e) => e.emotion)
+        .toList();
+
+    List<int> mayAverageList = entriesAverage
+        .where((element) => element.timestamp.toDate().month == DateTime.may)
+        .map((e) => e.emotion)
+        .toList();
+
+    List<int> junAverageList = entriesAverage
+        .where((element) => element.timestamp.toDate().month == DateTime.june)
+        .map((e) => e.emotion)
+        .toList();
+
+    List<int> julAverageList = entriesAverage
+        .where((element) => element.timestamp.toDate().month == DateTime.july)
+        .map((e) => e.emotion)
+        .toList();
+
+    List<int> augAverageList = entriesAverage
+        .where((element) => element.timestamp.toDate().month == DateTime.august)
+        .map((e) => e.emotion)
+        .toList();
+
+    List<int> sepAverageList = entriesAverage
+        .where((element) => element.timestamp.toDate().month == DateTime.september)
+        .map((e) => e.emotion)
+        .toList();
+
+    List<int> octAverageList = entriesAverage
+        .where((element) => element.timestamp.toDate().month == DateTime.october)
+        .map((e) => e.emotion)
+        .toList();
+
+    List<int> novAverageList = entriesAverage
+        .where((element) => element.timestamp.toDate().month == DateTime.november)
+        .map((e) => e.emotion)
+        .toList();
+
+    List<int> decAverageList = entriesAverage
+        .where((element) => element.timestamp.toDate().month == DateTime.december)
+        .map((e) => e.emotion)
+        .toList();
+
+
+    List<int> janThisYearList = entriesThisYear
+        .where(
+            (element) => element.timestamp.toDate().month == DateTime.january)
+        .map((e) => e.emotion)
+        .toList();
+
+    List<int> febThisYearList = entriesThisYear
+        .where(
+            (element) => element.timestamp.toDate().month == DateTime.february)
+        .map((e) => e.emotion)
+        .toList();
+
+    List<int> marThisYearList = entriesThisYear
+        .where((element) => element.timestamp.toDate().month == DateTime.march)
+        .map((e) => e.emotion)
+        .toList();
+
+    List<int> aprThisYearList = entriesThisYear
+        .where((element) => element.timestamp.toDate().month == DateTime.april)
+        .map((e) => e.emotion)
+        .toList();
+
+    List<int> mayThisYearList = entriesThisYear
+        .where((element) => element.timestamp.toDate().month == DateTime.may)
+        .map((e) => e.emotion)
+        .toList();
+
+    List<int> junThisYearList = entriesThisYear
+        .where((element) => element.timestamp.toDate().month == DateTime.june)
+        .map((e) => e.emotion)
+        .toList();
+
+    List<int> julThisYearList = entriesThisYear
+        .where((element) => element.timestamp.toDate().month == DateTime.july)
+        .map((e) => e.emotion)
+        .toList();
+
+    List<int> augThisYearList = entriesThisYear
+        .where((element) => element.timestamp.toDate().month == DateTime.august)
+        .map((e) => e.emotion)
+        .toList();
+
+    List<int> sepThisYearList = entriesThisYear
+        .where((element) => element.timestamp.toDate().month == DateTime.september)
+        .map((e) => e.emotion)
+        .toList();
+
+    List<int> octThisYearList = entriesThisYear
+        .where((element) => element.timestamp.toDate().month == DateTime.october)
+        .map((e) => e.emotion)
+        .toList();
+
+    List<int> novThisYearList = entriesThisYear
+        .where((element) => element.timestamp.toDate().month == DateTime.november)
+        .map((e) => e.emotion)
+        .toList();
+
+    List<int> decThisYearList = entriesThisYear
+        .where((element) => element.timestamp.toDate().month == DateTime.december)
+        .map((e) => e.emotion)
+        .toList();
+
+    double janAverage = _getAverage(janAverageList);
+    double febAverage = _getAverage(febAverageList);
+    double marAverage = _getAverage(marAverageList);
+    double aprAverage = _getAverage(aprAverageList);
+    double mayAverage = _getAverage(mayAverageList);
+    double junAverage = _getAverage(junAverageList);
+    double julAverage = _getAverage(julAverageList);
+    double augAverage = _getAverage(augAverageList);
+    double sepAverage = _getAverage(sepAverageList);
+    double octAverage = _getAverage(octAverageList);
+    double novAverage = _getAverage(novAverageList);
+    double decAverage = _getAverage(decAverageList);
+
+    double janThisYear = _getAverage(janThisYearList);
+    double febThisYear = _getAverage(febThisYearList);
+    double marThisYear = _getAverage(marThisYearList);
+    double aprThisYear = _getAverage(aprThisYearList);
+    double mayThisYear = _getAverage(mayThisYearList);
+    double junThisYear = _getAverage(junThisYearList);
+    double julThisYear = _getAverage(julThisYearList);
+    double augThisYear = _getAverage(augThisYearList);
+    double sepThisYear = _getAverage(sepThisYearList);
+    double octThisYear = _getAverage(octThisYearList);
+    double novThisYear = _getAverage(novThisYearList);
+    double decThisYear = _getAverage(decThisYearList);
+
+    final averageData = [
+      Linear(0, janAverage),
+      Linear(1, febAverage),
+      Linear(2, marAverage),
+      Linear(3, aprAverage),
+      Linear(4, mayAverage),
+      Linear(5, junAverage),
+      Linear(6, julAverage),
+      Linear(7, augAverage),
+      Linear(8, sepAverage),
+      Linear(9, octAverage),
+      Linear(10, novAverage),
+      Linear(11, decAverage),
+    ];
+
+    final thisWeekData = [
+      Linear(0, janThisYear),
+      Linear(1, febThisYear),
+      Linear(2, marThisYear),
+      Linear(3, aprThisYear),
+      Linear(4, mayThisYear),
+      Linear(5, junThisYear),
+      Linear(6, julThisYear),
+      Linear(7, augThisYear),
+      Linear(8, sepThisYear),
+      Linear(9, octThisYear),
+      Linear(10, novThisYear),
+      Linear(11, decThisYear),
+    ];
+
+    _seriesDataWeekdays.add(
+      charts.Series(
+        domainFn: (Linear month, _) => month.domain,
+        measureFn: (Linear month, _) => month.primary,
+        id: 'averageData',
+        data: averageData,
+      ),
+    );
+
+    _seriesDataWeekdays.add(
+      charts.Series(
+        domainFn: (Linear month, _) => month.domain,
+        measureFn: (Linear month, _) => month.primary,
+        id: 'thisYear',
+        data: thisWeekData,
+      ),
+    );
+
+    return _seriesDataWeekdays;
+  }
+
   Future<List<charts.Series<Linear, int>>> _getWeeklyAverage(
       TimeUtil _timeUtil, int offset) async {
     List<charts.Series<Linear, int>> _seriesDataWeekdays =
@@ -212,7 +448,7 @@ class _Chart extends State<Chart> {
     ];
 
     final thisWeekData = [
-      Linear(0, mondayThisWeek - 1),
+      Linear(0, mondayThisWeek),
       Linear(1, tuesdayThisWeek),
       Linear(2, wednesdayThisWeek),
       Linear(3, thursdayThisWeek),
@@ -242,13 +478,13 @@ class _Chart extends State<Chart> {
     return _seriesDataWeekdays;
   }
 
-  double _getAverage(List<int> weekday) {
+  double _getAverage(List<int> averagelist) {
     double average = 0;
-    if (weekday.length > 0) {
-      for (int item in weekday) {
+    if (averagelist.length > 0) {
+      for (int item in averagelist) {
         average = average + item;
       }
-      average = average / weekday.length;
+      average = average / averagelist.length;
     } else {
       average = null;
     }
@@ -287,6 +523,8 @@ class _Chart extends State<Chart> {
       return 2;
     } else if (option == '3 years') {
       return 3;
+    } else {
+      return 1;
     }
   }
 
@@ -332,16 +570,22 @@ class _Chart extends State<Chart> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Text('Average of past:'),
+              Text(
+                'Average of past:',
+                style: TextStyle(color: Colors.black),
+              ),
               SizedBox(
                 width: 8,
               ),
               DropdownButton<String>(
                   value: _averageOf,
+                  iconEnabledColor: Colors.black,
+                  dropdownColor: Colors.white,
                   items: _dropdownOptions.map((String value) {
                     return new DropdownMenuItem<String>(
                       value: value,
-                      child: new Text(value),
+                      child: new Text(value,
+                          style: TextStyle(color: Colors.black)),
                     );
                   }).toList(),
                   onChanged: (String value) {
@@ -353,7 +597,7 @@ class _Chart extends State<Chart> {
           ),
           Divider(),
           Center(
-            child: Text('Weekly'),
+            child: Text('Weekly', style: TextStyle(color: Colors.black)),
           ),
           FutureBuilder(
             future: _getWeeklyAverage(_timeUtil, _getIntFromOption(_averageOf)),
@@ -369,15 +613,17 @@ class _Chart extends State<Chart> {
           ),
           Divider(),
           Center(
-            child: Text('Monthly'),
+            child: Text('Monthly', style: TextStyle(color: Colors.black)),
           ),
           FutureBuilder(
-            future: _getWeeklyAverage(_timeUtil, _getIntFromOption(_averageOf)),
-            initialData: _genNullWeeklyList(),
+            future:
+                _getMonthlyAverage(_timeUtil, _getIntFromOption(_averageOf)),
+            initialData: _genNullMonthList(),
             builder: (BuildContext context,
                 AsyncSnapshot<List<charts.Series<Linear, int>>> snapshot) {
               if (snapshot.data != null) {
-                return Flexible(flex: 1, child: _createChart(snapshot.data, 6));
+                return Flexible(
+                    flex: 1, child: _createChart(snapshot.data, 11));
               } else {
                 return Center(child: new CircularProgressIndicator());
               }

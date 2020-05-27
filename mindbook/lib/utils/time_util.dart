@@ -22,6 +22,11 @@ class TimeUtil {
     return _dateTimeFormatted;
   }
 
+  DateTime getStartOfYear() {
+    DateTime _dateTimeFormatted = DateTime(_dateTime.year, 1, 1);
+    return _dateTimeFormatted;
+  }
+
   DateTime getDateTimeFrom(int year) {
     DateTime _dateTimeFormatted =
         DateTime(_dateTime.year - year, _dateTime.month, _dateTime.day);

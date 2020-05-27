@@ -39,6 +39,10 @@ class MonthWidget extends StatelessWidget {
     }
   }
 
+  Future<Color> getTransColor() async {
+    return Colors.transparent;
+  }
+
   Future<double> _getDayEmotionAverage(TimeUtil _timeUtil) async {
     Firestore firestore = Firestore.instance;
     QuerySnapshot results = await firestore
@@ -154,27 +158,42 @@ class MonthWidget extends StatelessWidget {
                         children: List.generate(monthRows[row].length, (day) {
                       return FutureBuilder(
                           future: monthRows[row][day] == ''
-                              ? null
+                              ? getTransColor()
                               : getDayColor(DateTime.utc(
                                   year, month, int.parse(monthRows[row][day]))),
                           initialData: Colors.transparent,
                           builder: (BuildContext context,
-                              AsyncSnapshot<Color> _color) {
-                            return Container(
-                              width: 18,
-                              height: 18,
-                              color: _color.data,
-                              alignment: Alignment.center,
-                              child: Visibility(
-                                visible: showDay,
-                                child: Text(
-                                  monthRows[row][day],
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(fontSize: 12,
+                              AsyncSnapshot<Color> snapshot) {
+                            switch (snapshot.connectionState) {
+                              case ConnectionState.none:
+                              case ConnectionState.active:
+
+                              case ConnectionState.waiting:
+                                return Container(
+                                    width: 18,
+                                    height: 18,
+                                    alignment: Alignment.center,
+                                    child: LinearProgressIndicator());
+                              case ConnectionState.done:
+                                if (snapshot.hasError)
+                                  return Text('${snapshot.error}');
+                                return Container(
+                                  width: 18,
+                                  height: 18,
+                                  color: snapshot.data,
+                                  alignment: Alignment.center,
+                                  child: Visibility(
+                                    visible: showDay,
+                                    child: Text(
+                                      monthRows[row][day],
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            );
+                                );
+                            }
                           });
                     }));
                   }, growable: true),

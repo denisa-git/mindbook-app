@@ -98,7 +98,16 @@ class _HomeScreen extends State<HomeScreen> {
                                 subtitle: Text(_currentUser.email),
                                 onTap: null,
                               ),
-                            if (_currentUser.displayName == null)
+                            if (_currentUser.displayName == null && _currentUser.email != null)
+                              ListTile(
+                                leading: Container(
+                                  child: Icon(Icons.person),
+                                  height: double.infinity,
+                                ),
+                                title: Text(_currentUser.email),
+                                onTap: null,
+                              ),
+                            if (_currentUser.displayName == null && _currentUser.email == null)
                               ListTile(
                                 leading: Container(
                                   child: Icon(Icons.person),

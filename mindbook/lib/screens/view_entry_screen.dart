@@ -62,22 +62,31 @@ class _ViewEntryScreen extends State<ViewEntryScreen> {
 
       return Sentiment.fromJson(emptyMap);
     }
-
-    final response = await http.post(
-      'https://net1.dev/analyse',
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'text': entry.content,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      return Sentiment.fromJson(json.decode(response.body));
-    } else {
-      throw Exception('Failed to load sentiment');
+    String error = "Error";
+    try {
+      final response = await http.post(
+        'https://net1.dev/analyse',
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'text': entry.content,
+        }),
+      );
+      if (response.statusCode == 200) {
+        return Sentiment.fromJson(json.decode(response.body));
+      } else {
+        throw Exception('Failed to load sentiment');
+      }
+    } catch (e) {
+      print(e);
     }
+
+    Map<String, String> emptyMap = {
+      "sentiment": error,
+    };
+
+    return Sentiment.fromJson(emptyMap);
   }
 
   @override
